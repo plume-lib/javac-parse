@@ -28,6 +28,7 @@ dependencies {
 // To upload to Maven Central, see instructions in the file.
 apply from: "${buildscript.sourceFile.parent}/gradle/mavencentral.gradle"
 
+// Don't use a toolchain because it uses `--release`, which is incompatible with `--add-exports`.
 java {
   sourceCompatibility = JavaVersion.VERSION_11
   targetCompatibility = JavaVersion.VERSION_11
