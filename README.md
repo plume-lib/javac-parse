@@ -1,4 +1,4 @@
-# javac-parse:  A wrapper around javac's parser
+# javac-parse:  a wrapper around javac's parser
 
 The parser in javac is the most authoritative and correct parser for Java.
 Calling that parser requires setting up various data structures that javac uses.
