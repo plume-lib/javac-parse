@@ -74,6 +74,6 @@ javadoc {
 
 The [JavaParser project](https://javaparser.org/) calls itself "The most popular parser for the Java language."
 It is featureful and easy to use.
-Unfortunately, JavaParser only parses Java 1-17 or higher, with [no plans] to support Java 18 or higher.
+Unfortunately, JavaParser only parses Java 1-17 or higher, with [no plans](https://github.com/javaparser/javaparser/issues/3907) to support Java 18 or higher.
 JavaParser also contains many bugs that the maintainers do not plan to fix.
 The parser in javac does not have these limitations.
