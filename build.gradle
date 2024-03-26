@@ -20,7 +20,11 @@ repositories {
   maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
+ext.errorproneVersion = '2.26.1'
+
 dependencies {
+  compileOnly "com.google.errorprone:error_prone_annotations:${errorproneVersion}"
+
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
@@ -108,14 +112,12 @@ tasks.withType(JavaCompile).configureEach {
   // "-options" is because starting in JDK 20, javac warns about using -source 8.
   options.compilerArgs << '-Xlint:all,-processing,-options' << '-Werror'
   options.errorprone {
-    // Recommends @InlineMe, which isn't in the error_prone_annotations jar file.  An `implementation`
-    // dependency on the error_prone_core jar file breaks javac in clients of this package.
-    disable("InlineMeSuggester")
     disable('ExtendsObject')  // Incorrect when using the Checker Framework
-    // Code copied from the JDK that we don't want to change gratuitously.
-    excludedPaths = '.*/Weak.*Hash(er)?Map.java'
+    disable('ReferenceEquality') // Use Interning Checker instead.
   }
   options.forkOptions.jvmArgs += '-Xmx2g'
+  // Don't use --release because it is incompatible with --add-exports.
+  //   options.release = 11
 }
 
 /// Checker Framework pluggable type-checking
@@ -139,8 +141,6 @@ checkerFramework {
   ]
   extraJavacArgs = [
     '-Werror',
-    // '-Aversion',
-    // '-verbose',
     '-AcheckPurityAnnotations',
     '-ArequirePrefixInWarningSuppressions',
     '-AwarnRedundantAnnotations',
@@ -150,7 +150,7 @@ checkerFramework {
 // To use a snapshot version of the Checker Framework.
 if (false) {
   // TODO: Change the above test to false when CF is released.
-  ext.checkerFrameworkVersion = '3.42.0'
+  ext.checkerFrameworkVersion = '3.43.0-SNAPSHOT'
   dependencies {
     compileOnly "org.checkerframework:checker-qual:${checkerFrameworkVersion}"
     testCompileOnly "org.checkerframework:checker-qual:${checkerFrameworkVersion}"
@@ -202,6 +202,16 @@ task javadocWeb(type: Javadoc) {
   destinationDir = file("/cse/web/research/plumelib/${project.name}/api")
   classpath = project.sourceSets.main.compileClasspath
   options.addStringOption('source', '11')
+  options {
+    addMultilineStringsOption("-add-exports").setValue([
+      'jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
+      'jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
+      'jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED',
+      'jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED',
+      'jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
+      'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
+    ])
+  }
   doLast {
     ant.replaceregexp(match:"@import url\\('resources/fonts/dejavu.css'\\);\\s*", replace:'',
     flags:'g', byline:true) {
@@ -240,12 +250,15 @@ task tags(type: Exec) {
   commandLine 'bash', '-c', "find src/ -name '*.java' | sort | xargs etags"
 }
 
-/// Determine classpath
 
-task printTestCompileClasspath {
-  description = 'Print the compile-time test classpath'
+/// Debugging support
+
+task printCompileClasspaths {
+  description 'Print the compile-time classpaths'
   doFirst {
     println 'Compile classpath:'
+    println sourceSets.main.compileClasspath.asPath
+    println 'Compile test classpath:'
     println sourceSets.test.compileClasspath.asPath
   }
 }
