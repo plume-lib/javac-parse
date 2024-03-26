@@ -5,7 +5,7 @@ Calling that parser requires setting up various data structures that javac uses.
 This small package contains a method that does that setup, making it easy for you
 to call javac's parser.
 
-See the [API documentation](http://plumelib.org/javac-parse/api/org/plumelib/util/package-summary.html#package.description).
+See the [API documentation](https://plumelib.org/javac-parse/api/org/plumelib/mergetools/javacparse/package-summary.html).
 
 
 ## The javac AST (parse tree)
