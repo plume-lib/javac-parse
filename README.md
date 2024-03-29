@@ -69,6 +69,19 @@ javadoc {
 }
 ```
 
+When you run your program, you will need to include the `--add-exports` flags as well:
+
+```
+java --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
+     --add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED \
+     --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED \
+     --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED \
+     --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED \
+     --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED \
+  -cp ... \
+  my.package.Main
+```
+
 
 ## Why not use the JavaParser project?
 
