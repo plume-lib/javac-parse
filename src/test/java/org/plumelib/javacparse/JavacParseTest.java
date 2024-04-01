@@ -1,4 +1,4 @@
-package org.plumelib.mergetools.javacparse;
+package org.plumelib.javacparse;
 
 import static org.junit.jupiter.api.Assertions.*;
 

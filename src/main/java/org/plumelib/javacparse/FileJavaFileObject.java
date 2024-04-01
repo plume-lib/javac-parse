@@ -1,4 +1,4 @@
-package org.plumelib.mergetools.javacparse;
+package org.plumelib.javacparse;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package org.plumelib.mergetools.javacparse;
+package org.plumelib.javacparse;
 
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.parser.JavacParser;
