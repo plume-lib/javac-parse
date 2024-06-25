@@ -83,17 +83,31 @@ java --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
 ```
 
 
-## Comparison to the JavaParser project
+## Limitations
+
+One limitation of the javac parser is that the `JCTree` it creates contains
+Javadoc comments but omits all other comments.  JavaParser retains all comments,
+though some of its handling of comments is buggy.  (Here are the gory details
+about javac.  In the javac implementation, every `Token` retains all comments
+(Javadoc or not) in a a public field `comments`.  All methods look through that
+field and only pick out the Javadoc comments.  For example,
+`Scanner.nextToken()` populates the Scanner's `docComments` field from the
+`Token`'s `comments` field, dropping the non-Javadoc comments, which don't
+appear in the `JCTree`.  And the `JCTree` doesn't have access to the `Token`
+objects.  If desired, it would be possible to hack around javac's limitations by
+reading the file, looking at the line and column numbers of each JCTree and each
+comment, and assigning the comments appropriately.)
+
+
+## Alternatives
 
 The [JavaParser project](https://javaparser.org/) calls itself "The most popular parser for the Java language."
 It is featureful and easy to use.
 Unfortunately, maintenance is sporadic, and JavaParser contains many bugs that the maintainers do not plan to fix.
 The parser in javac does not have these limitations.
 
-One limitation of the javac parser is that the `JCTree` it creates contains Javadoc comments but omits all other comments.
-JavaParser retains all comments, though some of its handling of comments is buggy.
-(Here are the gory details about javac.
-In the javac implementation, every `Token` retains all comments (Javadoc or not) in a a public field `comments`.
-All methods look through that field and only pick out the Javadoc comments.
-For example, `Scanner.nextToken()` populates the Scanner's `docComments` field from the `Token`'s `comments` field, dropping the non-Javadoc comments, which don't appear in the `JCTree`.  And the `JCTree` doesn't have access to the `Token` objects.
-If desired, it would be possible to hack around javac's limitations by reading the file, looking at the line and column numbers of each JCTree and each comment, and assigning the comments appropriately.)
+[OpenRewrite](https://github.com/openrewrite/rewrite) internally uses the javac
+parser, then converts the javac AST to its own AST (which they call an LST) that
+includes information about formatting and comments.  However, outputting to Java
+source code is proprietary feature only available in their commercial product.
+
