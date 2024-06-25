@@ -101,10 +101,11 @@ comment, and assigning the comments appropriately.)
 
 ## Alternatives
 
-The [JavaParser project](https://javaparser.org/) calls itself "The most popular parser for the Java language."
-It is featureful and easy to use.
-Unfortunately, maintenance is sporadic, and JavaParser contains many bugs that the maintainers do not plan to fix.
-The parser in javac does not have these limitations.
+The [JavaParser project](https://javaparser.org/) calls itself "The most popular
+parser for the Java language."  It is featureful and easy to use.  The parse
+tree includes comments (though it has some bugs related to comment handling).
+Unfortunately, maintenance is sporadic, and JavaParser contains many bugs that
+the maintainers do not plan to fix.
 
 [OpenRewrite](https://github.com/openrewrite/rewrite) internally uses the javac
 parser, then converts the javac AST to its own AST (which they call an LST) that
