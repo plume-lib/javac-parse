@@ -1,9 +1,10 @@
 # javac-parse:  a wrapper around javac's parser
 
 The parser in javac is the most authoritative and correct parser for Java.
-Calling that parser requires setting up various data structures that javac uses.
-This small package contains a method that does that setup, making it easy for you
-to call javac's parser.
+Calling that parser requires setting up various data structures that javac
+uses.  This small package contains a method,
+[`JavacParse.parseJavaFile()`](https://plumelib.org/javac-parse/api/org/plumelib/javacparse/JavacParse.html),
+that does that setup, making it easy for you to call javac's parser.
 
 See the [API documentation](https://plumelib.org/javac-parse/api/org/plumelib/javacparse/package-summary.html).
 
@@ -104,6 +105,11 @@ comment, and assigning the comments appropriately.)
 
 ## Alternatives
 
+[OpenRewrite](https://github.com/openrewrite/rewrite) internally uses the javac
+parser, then converts the javac AST to its own AST (which they call an LST) that
+includes information about formatting and comments.  However, outputting to Java
+source code is a proprietary feature only available in their commercial product.
+
 [JavaParser](https://javaparser.org/) calls itself "The most popular
 parser for the Java language."  It is featureful and easy to use.  The parse
 tree includes comments (though it has some bugs related to comment
@@ -119,12 +125,34 @@ locals.  To transition from JavaParser to javac-parse, you will need to change
 types in your code, such as the following:
 ```
 Node -> JCTree
+  Node.getRange() -> JCTree.getStartPosition() and JCTree.getEndPosition()
 MethodDeclaration -> JCTree.JCMethodDecl
+  MethodDeclaration.getAnnotations() -> JCTree.JCMethodDecl.getModifiers.getAnnotations()
 Statement -> JCTree.JCStatement
+.getNameAsString() -> .getName().toString()
+Parameter -> JCTree.JCVariableDecl
+ReturnStmt -> JCTree.JCReturn
+FieldAccessExpr -> JCTree.JCFieldAccess
+  FieldAccessExpr.getScope() -> JCTree.JCFieldAccess.getExpression()
+  FieldAccessExpr.getName() -> JCTree.JCFieldAccess.getIdentifier()
+ExpressionStmt -> JCTree.JCExpressionStatement
+AssignExpr -> JCTree.JCAssign or JCTree.JCBinary
+  AssignExpr.getTarget() -> JCTree.JCAssign.getVariable() or JCTree.JCBinary.getLeftOperand()
+  AssignExpr.getValue() -> JCTree.JCAssign.getExpression() or JCTree.JCBinary.getRightOperand()
+AnnotationExpr -> JCTree.JCAnnotation
+UnaryExpr -> JCTree.JCUnary
+  UnaryExpr.getOperator() -> JCTree.JCUnary.getTag()
+  UnaryExpr.Operator.LOGICAL_COMPLEMENT -> JCTree.Tag.NOT
+NameExpr -> JCTree.JCIdent
+BlockStmt -> JCTree.JCBlock
+PackageDeclaration -> JCTree.JCPackageDecl
+CompilationUnit -> JCTree.JCCompilationUnit
+  CompilationUnit.getPackageDeclaration() -> JCTree.JCCompilationUnit.getPackage()
+ClassOrInterfaceDeclaration -> JCTree.JCClassDecl
+  ClassOrInterfaceDeclaration.getName() -> JCTree.JCClassDecl.getSimpleName()
+Range -> JCDiagnostic.DiagnosticPosition
+ThisExpr -> JCTree.JCIdent with name "this"
+.isPrivate() -> .getModifiers().getFlags().contains(Modifier.PRIVATE)
 ...
 ```
 
-[OpenRewrite](https://github.com/openrewrite/rewrite) internally uses the javac
-parser, then converts the javac AST to its own AST (which they call an LST) that
-includes information about formatting and comments.  However, outputting to Java
-source code is a proprietary feature only available in their commercial product.
