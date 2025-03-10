@@ -2,7 +2,7 @@ plugins {
   id 'java-library'
 
   // To create a fat jar build/libs/...-all.jar, run: ./gradlew shadowJar
-  id 'com.gradleup.shadow' version '8.3.5'
+  id 'com.gradleup.shadow' version '8.3.6'
 
   // Code formatting; defines targets "spotlessApply" and "spotlessCheck"
   // Requires JDK 11 or higher; the plugin crashes under JDK 8.
@@ -12,7 +12,7 @@ plugins {
   id('net.ltgt.errorprone') version '4.1.0'
 
   // Checker Framework pluggable type-checking
-  id 'org.checkerframework' version '0.6.48'
+  id 'org.checkerframework' version '0.6.52'
 }
 
 repositories {
@@ -27,7 +27,7 @@ ext {
 }
 
 dependencies {
-  testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
+  testImplementation("org.junit.jupiter:junit-jupiter:5.12.0")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -153,7 +153,7 @@ checkerFramework {
 // To use a snapshot version of the Checker Framework.
 if (false) {
   // TODO: Change the above test to false when CF is released.
-  ext.checkerFrameworkVersion = '3.48.4'
+  ext.checkerFrameworkVersion = '3.49.1'
   dependencies {
     compileOnly "org.checkerframework:checker-qual:${checkerFrameworkVersion}"
     testCompileOnly "org.checkerframework:checker-qual:${checkerFrameworkVersion}"
