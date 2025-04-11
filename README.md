@@ -155,4 +155,3 @@ ThisExpr -> JCTree.JCIdent with name "this"
 .isPrivate() -> .getModifiers().getFlags().contains(Modifier.PRIVATE)
 ...
 ```
-
