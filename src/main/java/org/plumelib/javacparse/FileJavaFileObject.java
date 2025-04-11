@@ -32,6 +32,16 @@ class FileJavaFileObject extends SimpleJavaFileObject {
     javaCode = new String(Files.readAllBytes(Path.of(filename)), Charset.defaultCharset());
   }
 
+  /**
+   * Creates a StringJavaFileObject for the given path.
+   *
+   * @param pathname the path name of a Java source file
+   * @throws IOException if there is trouble reading the file
+   */
+  public FileJavaFileObject(Path pathname) throws IOException {
+    this(pathname.toString());
+  }
+
   @Override
   public CharSequence getCharContent(boolean ignoreEncodingErrors) {
     return javaCode;
