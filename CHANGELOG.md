@@ -1,6 +1,6 @@
 # javac-parse change log
 
-## 0.2.0 (2024-04-19)
+## 0.2.0 (2024-06-15)
 
 - `parse*` methods return a `JavacParseResult` rather than a possibly-null `CompilationUnit`.
 
