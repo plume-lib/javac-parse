@@ -8,15 +8,13 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * This class contains static methods {@link #parseJavaFile} and {@link #parseJavaCode} that parse
- * Java code into a CompilationUnit.
+ * Java code into a JCCompilationUnit.
  *
  * <p>Internally, this class calls the javac parser from the JDK.
  */
@@ -34,7 +32,7 @@ public final class JavacParse {
    * @return a (parsed) compilation unit, or null if there is a parse error
    * @throws IOException if there is trouble reading the file
    */
-  public static @Nullable JCCompilationUnit parseJavaFile(String filename) throws IOException {
+  public static JavacParseResult parseJavaFile(String filename) throws IOException {
     return parseJavaFileObject(new FileJavaFileObject(filename));
   }
 
@@ -44,7 +42,7 @@ public final class JavacParse {
    * @param javaCode the contents of a Java file
    * @return a (parsed) compilation unit, or null if there is a parse error
    */
-  public static @Nullable JCCompilationUnit parseJavaCode(String javaCode) {
+  public static JavacParseResult parseJavaCode(String javaCode) {
     try {
       return parseJavaFileObject(new StringJavaFileObject(javaCode));
     } catch (IOException e) {
@@ -57,35 +55,28 @@ public final class JavacParse {
    * javac parser could create a CompilationUnit, some of whose subcomponents are erroneous).
    *
    * @param source a JavaFileObject
-   * @return a (parsed) compilation unit, or null if the source yields a parse error
+   * @return a compilation unit and the parse errors encountered in it
    * @throws IOException if there is trouble reading the file
    */
-  public static @Nullable JCCompilationUnit parseJavaFileObject(JavaFileObject source)
-      throws IOException {
+  public static JavacParseResult parseJavaFileObject(JavaFileObject source) throws IOException {
     Context context = new Context();
 
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
     context.put(DiagnosticListener.class, diagnostics);
 
     @SuppressWarnings({
-      "builder", // No not close the JavacFileManager, which is reused by javac.
-      "UnusedVariable" // `new JavacFileManager` is called for side effect; the variable is a place
-      // to put this @SuppressWarnings annotation
+      "builder", // Do not close the JavacFileManager, which is reused by javac.
+      "UnusedVariable" // `new JavacFileManager` is called for side effect; the variable
+      // declaration is a place to put this @SuppressWarnings annotation.
     })
-    JavacFileManager fileManager = new JavacFileManager(context, true, StandardCharsets.UTF_8);
+    JavacFileManager fileManagerUnused =
+        new JavacFileManager(context, true, StandardCharsets.UTF_8);
 
     Log.instance(context).useSource(source);
     ParserFactory parserFactory = ParserFactory.instance(context);
     JavacParser parser = parserFactory.newParser(source.getCharContent(false), true, true, true);
     JCCompilationUnit cu = parser.parseCompilationUnit();
     cu.sourcefile = source;
-
-    boolean parseError =
-        diagnostics.getDiagnostics().stream().anyMatch(d -> d.getKind() == Diagnostic.Kind.ERROR);
-    if (parseError) {
-      return null;
-    } else {
-      return cu;
-    }
+    return new JavacParseResult(cu, diagnostics.getDiagnostics());
   }
 }
