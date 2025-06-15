@@ -237,6 +237,7 @@ dependencies {
   requireJavadoc 'org.plumelib:require-javadoc:2.0.0'
 }
 task requireJavadoc(type: JavaExec) {
+  dependsOn jar
   group = 'Documentation'
   description = 'Ensures that Javadoc documentation exists.'
   mainClass = 'org.plumelib.javadoc.RequireJavadoc'
