@@ -15,7 +15,7 @@ class FileJavaFileObject extends SimpleJavaFileObject {
   private String javaCode;
 
   /**
-   * Creates a StringJavaFileObject for the given file.
+   * Creates a FileJavaFileObject for the given file.
    *
    * @param filename the file name of a Java source file
    * @throws IOException if there is trouble reading the file
