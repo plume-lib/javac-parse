@@ -51,19 +51,21 @@ public final class JavacParse {
   }
 
   /**
-   * Parse a the contents of a JavaFileObject. Returns null if there was a parse error (even if the
-   * javac parser could create a CompilationUnit, some of whose subcomponents are erroneous).
+   * Parse the contents of a JavaFileObject.
    *
    * @param source a JavaFileObject
    * @return a compilation unit and the parse errors encountered in it
    * @throws IOException if there is trouble reading the file
    */
   public static JavacParseResult parseJavaFileObject(JavaFileObject source) throws IOException {
+    // Per the documentation of Context, "a single Context is used for each invocation of the
+    // compiler".
     Context context = new Context();
 
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
     context.put(DiagnosticListener.class, diagnostics);
 
+    // TODO: If it's re-used, why do we call `new` to create a new one each time?
     @SuppressWarnings({
       "builder", // Do not close the JavacFileManager, which is reused by javac.
       "UnusedVariable" // `new JavacFileManager` is called for side effect; the variable
