@@ -38,11 +38,11 @@ class JavacParseTest {
     }
     double finalUsedMemory = (double) SystemPlume.usedMemory(true);
     if (finalUsedMemory / initialUsedMemory > 1.02) {
-      throw new Error(
-          "initial used memory = "
-              + initialUsedMemory
-              + ", final used memory = "
-              + finalUsedMemory);
+      String msg =
+          "initial used memory = " + initialUsedMemory + ", final used memory = " + finalUsedMemory;
+      System.out.println(msg);
+      System.err.println(msg);
+      throw new Error(msg);
     }
   }
 }
