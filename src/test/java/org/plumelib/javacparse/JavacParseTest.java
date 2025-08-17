@@ -21,8 +21,11 @@ class JavacParseTest {
   @Test
   void memoryTest() {
     double initialUsedMemory = (double) SystemPlume.usedMemory(true);
-    for (int i = 0; i < 10; i++) { // increase limit for a more thorough test.
-      // Each execution of this loop takes approximately 1 second.
+    int numIterations = 10; // Each iteration takes approximately 1 second.
+    if (System.getenv("GITHUB_HEAD_REF") != null) {
+      numIterations *= 10;
+    }
+    for (int i = 0; i < numIterations; i++) {
       for (int j = 0; j < 1000; j++) {
         // Make a new String each time through the loop.
         StringJoiner sj = new StringJoiner(System.lineSeparator());
