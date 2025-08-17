@@ -60,6 +60,7 @@ public final class JavacParse {
   public static JavacParseResult parseJavaFileObject(JavaFileObject source) throws IOException {
     // The documentation of Context says "a single Context is used for each invocation of the
     // compiler".  Re-using the Context causes an error "duplicate context value" in the compiler.
+    // A Context is just a map.
     Context context = new Context();
 
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
