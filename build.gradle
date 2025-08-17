@@ -67,9 +67,7 @@ test {
       '--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
     ]
   }
-}
 
-test {
   useJUnitPlatform {
     includeEngines 'junit-jupiter'
     excludeEngines 'junit-vintage'
@@ -78,6 +76,8 @@ test {
   testLogging {
     outputs.upToDateWhen{false}
     showStandardStreams = true
+    events "failed"
+    exceptionFormat = "full"
   }
 }
 
