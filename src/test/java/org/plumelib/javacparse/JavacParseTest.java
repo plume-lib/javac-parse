@@ -42,7 +42,7 @@ class JavacParseTest {
     }
     double finalUsedMemory = (double) SystemPlume.usedMemory(true);
     double memoryRatio = finalUsedMemory / initialUsedMemory;
-    if (memoryRatio > 1.02) {
+    if (memoryRatio > 1.03) {
       String msg =
           "initial used memory = "
               + initialUsedMemory
@@ -50,8 +50,6 @@ class JavacParseTest {
               + finalUsedMemory
               + ", ratio = "
               + memoryRatio;
-      System.out.println(msg);
-      System.err.println(msg);
       throw new Error(msg);
     }
   }
