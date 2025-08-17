@@ -21,7 +21,8 @@ class JavacParseTest {
   @Test
   void memoryTest() {
     double initialUsedMemory = (double) SystemPlume.usedMemory(true);
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 10; i++) { // increase limit for a more thorough test.
+      // Each execution of this loop takes approximately 1 second.
       for (int j = 0; j < 1000; j++) {
         // Make a new String each time through the loop.
         StringJoiner sj = new StringJoiner(System.lineSeparator());
@@ -30,7 +31,7 @@ class JavacParseTest {
         }
         JavacParse.parseJavaCode(sj.toString());
       }
-      String msg = SystemPlume.gcUsageMessage(.5, 15);
+      String msg = SystemPlume.gcUsageMessage(.3, 10);
       if (msg != null) {
         System.out.println(msg);
       }
