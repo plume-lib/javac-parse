@@ -23,6 +23,7 @@ class JavacParseTest {
     double initialUsedMemory = (double) SystemPlume.usedMemory(true);
     int numIterations = 10; // Each iteration takes approximately 1 second.
     if (System.getenv("GITHUB_HEAD_REF") != null) {
+      // Running in GitHub Actions continuous integration.
       numIterations *= 10;
     }
     for (int i = 0; i < numIterations; i++) {
