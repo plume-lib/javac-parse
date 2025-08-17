@@ -2,6 +2,7 @@ package org.plumelib.javacparse;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.sun.source.tree.CompilationUnitTree;
 import java.io.IOException;
 import java.util.StringJoiner;
 import org.junit.jupiter.api.Test;
@@ -12,9 +13,11 @@ class JavacParseTest {
   void javacParseTest() {
     assertThrows(IOException.class, () -> JavacParse.parseJavaFile("foo bar"));
 
-    JavacParseResult r1 = JavacParse.parseJavaCode("class MyClass { void m() {} }");
+    JavacParseResult<CompilationUnitTree> r1 =
+        JavacParse.parseJavaCode("class MyClass { void m() {} }");
     assertFalse(r1.hasParseError());
-    JavacParseResult r2 = JavacParse.parseJavaCode("class SyntaxError { void () {} }");
+    JavacParseResult<CompilationUnitTree> r2 =
+        JavacParse.parseJavaCode("class SyntaxError { void () {} }");
     assertTrue(r2.hasParseError());
   }
 

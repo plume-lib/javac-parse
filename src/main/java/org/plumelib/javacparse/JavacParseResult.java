@@ -1,15 +1,19 @@
 package org.plumelib.javacparse;
 
-import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.source.tree.Tree;
 import java.util.List;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
-/** Represents the result of parsing a {@code .java} file. */
-public final class JavacParseResult {
+/**
+ * Represents the result of parsing Java code (a file or a subpart thereof).
+ *
+ * @param <T> the type of the Java code being parsed
+ */
+public final class JavacParseResult<T extends Tree> {
 
-  /** The compilation unit. */
-  private final JCCompilationUnit compilationUnit;
+  /** The parse tree. */
+  private final T tree;
 
   /** The diagnostics. */
   private final List<Diagnostic<? extends JavaFileObject>> diagnostics;
@@ -17,22 +21,21 @@ public final class JavacParseResult {
   /**
    * Create a JavacParseResult.
    *
-   * @param compilationUnit the compilation unit
+   * @param tree the parse tree
    * @param diagnostics the diagnostics
    */
-  public JavacParseResult(
-      JCCompilationUnit compilationUnit, List<Diagnostic<? extends JavaFileObject>> diagnostics) {
-    this.compilationUnit = compilationUnit;
+  public JavacParseResult(T tree, List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+    this.tree = tree;
     this.diagnostics = diagnostics;
   }
 
   /**
-   * Returns the compilation unit.
+   * Returns the parse tree.
    *
-   * @return the compilation unit
+   * @return the parse tree
    */
-  public final JCCompilationUnit getCompilationUnit() {
-    return compilationUnit;
+  public final T getTree() {
+    return tree;
   }
 
   /**
