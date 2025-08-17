@@ -139,27 +139,25 @@ public final class JavacParse {
    */
   public static JavacParseResult<JCCompilationUnit> parseJavaFileObject(JavaFileObject source)
       throws IOException {
-    // Per the documentation of Context, "a single Context is used for each invocation of the
-    // compiler".
+    // The documentation of Context says "a single Context is used for each invocation of the
+    // compiler".  Re-using the Context causes an error "duplicate context value" in the compiler.
+    // A Context is just a map.
     Context context = new Context();
 
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
     context.put(DiagnosticListener.class, diagnostics);
 
-    // TODO: If it's re-used, why do we call `new` to create a new one each time?
-    @SuppressWarnings({
-      "builder", // Do not close the JavacFileManager, which is reused by javac.
-      "UnusedVariable" // `new JavacFileManager` is called for side effect; the variable
-      // declaration is a place to put this @SuppressWarnings annotation.
-    })
-    JavacFileManager fileManagerUnused =
-        new JavacFileManager(context, true, StandardCharsets.UTF_8);
+    // Needed to avoid "this.fileManager is null" error in com.sun.tools.javac.comp.Modules.<init>.
+    try (@SuppressWarnings("UnusedVariable") // `new JavacFileManager` sets a mapping in `context`.
+        JavacFileManager fileManagerUnused =
+            new JavacFileManager(context, true, StandardCharsets.UTF_8)) {
 
-    Log.instance(context).useSource(source);
-    ParserFactory parserFactory = ParserFactory.instance(context);
-    JavacParser parser = parserFactory.newParser(source.getCharContent(false), true, true, true);
-    JCCompilationUnit cu = parser.parseCompilationUnit();
-    cu.sourcefile = source;
-    return new JavacParseResult(cu, diagnostics.getDiagnostics());
+      Log.instance(context).useSource(source);
+      ParserFactory parserFactory = ParserFactory.instance(context);
+      JavacParser parser = parserFactory.newParser(source.getCharContent(false), true, true, true);
+      JCCompilationUnit cu = parser.parseCompilationUnit();
+      cu.sourcefile = source;
+      return new JavacParseResult(cu, diagnostics.getDiagnostics());
+    }
   }
 }

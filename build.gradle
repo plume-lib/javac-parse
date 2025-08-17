@@ -28,6 +28,7 @@ ext {
 
 dependencies {
   testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
+  testImplementation("org.plumelib:plume-util:1.11.0")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -67,9 +68,7 @@ test {
       '--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
     ]
   }
-}
 
-test {
   useJUnitPlatform {
     includeEngines 'junit-jupiter'
     excludeEngines 'junit-vintage'
@@ -78,6 +77,8 @@ test {
   testLogging {
     outputs.upToDateWhen{false}
     showStandardStreams = true
+    events "failed"
+    exceptionFormat = "full"
   }
 }
 
