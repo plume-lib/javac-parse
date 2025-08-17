@@ -59,16 +59,15 @@ public final class JavacParse {
    */
   @SuppressWarnings("try") // `fileManagerUnused` is not used
   public static JavacParseResult parseJavaFileObject(JavaFileObject source) throws IOException {
-    // Per the documentation of Context, "a single Context is used for each invocation of the
-    // compiler".  Making the Context static and re-using it causes an assertion error "duplicate
-    // context value" in the compiler.
+    // The documentation of Context says "a single Context is used for each invocation of the
+    // compiler".  Re-using the Context causes an error "duplicate context value" in the compiler.
+    // A Context is just a map.
     Context context = new Context();
 
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
     context.put(DiagnosticListener.class, diagnostics);
 
-    // Need to avoid a "this.fileManager is null" error in com.sun.tools.javac.comp.Modules.<init>.
-
+    // Needed to avoid "this.fileManager is null" error in com.sun.tools.javac.comp.Modules.<init>.
     try (@SuppressWarnings("UnusedVariable") // `new JavacFileManager` sets a mapping in `context`.
         JavacFileManager fileManagerUnused =
             new JavacFileManager(context, true, StandardCharsets.UTF_8)) {
