@@ -58,8 +58,8 @@ public final class JavacParse {
    * @throws IOException if there is trouble reading the file
    */
   public static JavacParseResult parseJavaFileObject(JavaFileObject source) throws IOException {
-    // Per the documentation of Context, "a single Context is used for each invocation of the
-    // compiler".
+    // The documentation of Context says "a single Context is used for each invocation of the
+    // compiler".  Re-using the Context causes an error "duplicate context value" in the compiler.
     Context context = new Context();
 
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
