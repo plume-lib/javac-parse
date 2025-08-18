@@ -241,32 +241,6 @@ public final class JavacParse {
   }
 
   /**
-   * Parse a type use.
-   *
-   * @param source a JavaFileObject
-   * @return a (parsed) type use, possibly an ErroneousTree
-   * @throws IOException if there is trouble reading the file
-   */
-  @SuppressWarnings("try") // `fileManagerUnused` is not used
-  public static JavacParseResult<ExpressionTree> parseTypeUse(JavaFileObject source)
-      throws IOException {
-    Context context = new Context();
-    DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-    context.put(DiagnosticListener.class, diagnostics);
-
-    try (@SuppressWarnings("UnusedVariable") // `new JavacFileManager` sets a mapping in `context`.
-        JavacFileManager fileManagerUnused =
-            new JavacFileManager(context, true, StandardCharsets.UTF_8)) {
-
-      Log.instance(context).useSource(source);
-      ParserFactory parserFactory = ParserFactory.instance(context);
-      JavacParser parser = parserFactory.newParser(source.getCharContent(false), true, true, true);
-      ExpressionTree eTree = parser.parseType();
-      return new JavacParseResult<ExpressionTree>(eTree, diagnostics.getDiagnostics());
-    }
-  }
-
-  /**
    * Parse a Java expression
    *
    * @param source a JavaFileObject
@@ -288,6 +262,32 @@ public final class JavacParse {
       ParserFactory parserFactory = ParserFactory.instance(context);
       JavacParser parser = parserFactory.newParser(source.getCharContent(false), true, true, true);
       ExpressionTree eTree = parser.parseExpression();
+      return new JavacParseResult<ExpressionTree>(eTree, diagnostics.getDiagnostics());
+    }
+  }
+
+  /**
+   * Parse a type use.
+   *
+   * @param source a JavaFileObject
+   * @return a (parsed) type use, possibly an ErroneousTree
+   * @throws IOException if there is trouble reading the file
+   */
+  @SuppressWarnings("try") // `fileManagerUnused` is not used
+  public static JavacParseResult<ExpressionTree> parseTypeUse(JavaFileObject source)
+      throws IOException {
+    Context context = new Context();
+    DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+    context.put(DiagnosticListener.class, diagnostics);
+
+    try (@SuppressWarnings("UnusedVariable") // `new JavacFileManager` sets a mapping in `context`.
+        JavacFileManager fileManagerUnused =
+            new JavacFileManager(context, true, StandardCharsets.UTF_8)) {
+
+      Log.instance(context).useSource(source);
+      ParserFactory parserFactory = ParserFactory.instance(context);
+      JavacParser parser = parserFactory.newParser(source.getCharContent(false), true, true, true);
+      ExpressionTree eTree = parser.parseType();
       return new JavacParseResult<ExpressionTree>(eTree, diagnostics.getDiagnostics());
     }
   }
