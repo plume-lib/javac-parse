@@ -118,12 +118,20 @@ public final class JavacParse {
     throw new Error("to implement");
   }
 
-  /*
+  /**
    * Parses the given Java expression string, such as "foo.bar()" or "1 + 2"
    *
    * @param expressionSource the string representation of a Java expression
    * @return the parsed expression
    */
+  public static JavacParseResult<ExpressionTree> parseExpression(String expressionSource) {
+    try {
+      return parseExpression(new StringJavaFileObject(expressionSource));
+    } catch (IOException e) {
+      throw new Error("This can't happen", e);
+    }
+  }
+
   /*
   public static JavacParseResult<ExpressionTree> parseExpression(String expressionSource) {
 
@@ -254,6 +262,32 @@ public final class JavacParse {
       ParserFactory parserFactory = ParserFactory.instance(context);
       JavacParser parser = parserFactory.newParser(source.getCharContent(false), true, true, true);
       ExpressionTree eTree = parser.parseType();
+      return new JavacParseResult<ExpressionTree>(eTree, diagnostics.getDiagnostics());
+    }
+  }
+
+  /**
+   * Parse a Java expression
+   *
+   * @param source a JavaFileObject
+   * @return a (parsed) expression, possibly an ErroneousTree
+   * @throws IOException if there is trouble reading the file
+   */
+  @SuppressWarnings("try") // `fileManagerUnused` is not used
+  public static JavacParseResult<ExpressionTree> parseExpression(JavaFileObject source)
+      throws IOException {
+    Context context = new Context();
+    DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+    context.put(DiagnosticListener.class, diagnostics);
+
+    try (@SuppressWarnings("UnusedVariable") // `new JavacFileManager` sets a mapping in `context`.
+        JavacFileManager fileManagerUnused =
+            new JavacFileManager(context, true, StandardCharsets.UTF_8)) {
+
+      Log.instance(context).useSource(source);
+      ParserFactory parserFactory = ParserFactory.instance(context);
+      JavacParser parser = parserFactory.newParser(source.getCharContent(false), true, true, true);
+      ExpressionTree eTree = parser.parseExpression();
       return new JavacParseResult<ExpressionTree>(eTree, diagnostics.getDiagnostics());
     }
   }

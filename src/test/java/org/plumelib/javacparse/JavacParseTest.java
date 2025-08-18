@@ -37,10 +37,17 @@ class JavacParseTest {
     String scu11 = si2 + scu5;
     String scu12 = si1 + si2 + scu5;
 
+    // Expression
+    String e1 = "1 + 2";
+    String e2 = "foo.m()";
+    String e3 = "foo.m(1 + 2)";
+    String e4 = "x instanceof Object";
+
     // Invalid code.
-    String sinv1 = "class SyntaxError { void () {} }";
-    String sinv2 = si1 + sinv1;
-    String sinv3 = "Hello this is nonsense.";
+    String invalid1 = "class SyntaxError { void () {} }";
+    String invalid2 = si1 + invalid1;
+    String invalid3 = "Hello this is nonsense.";
+    String invalid4 = "1 +";
 
     // Compilation unit.
 
@@ -57,9 +64,14 @@ class JavacParseTest {
     assertNoParseError(JavacParse.parseCompilationUnit(scu11), scu11);
     assertNoParseError(JavacParse.parseCompilationUnit(scu12), scu12);
 
-    assertTrue(JavacParse.parseCompilationUnit(sinv1).hasParseError());
-    assertTrue(JavacParse.parseCompilationUnit(sinv2).hasParseError());
-    assertTrue(JavacParse.parseCompilationUnit(sinv3).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(e1).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(e2).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(e3).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(e4).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(invalid1).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(invalid2).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(invalid3).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(invalid4).hasParseError());
 
     // Class
     assertNoParseError(JavacParse.parseTypeDeclaration(sc1), sc1);
@@ -76,9 +88,37 @@ class JavacParseTest {
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu10), scu10);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu11), scu11);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu12), scu12);
-    assertTrue(JavacParse.parseCompilationUnit(sinv1).hasParseError());
-    assertTrue(JavacParse.parseCompilationUnit(sinv2).hasParseError());
-    assertTrue(JavacParse.parseCompilationUnit(sinv3).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(e1).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(e2).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(e3).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(e4).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(invalid1).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(invalid2).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(invalid3).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(invalid4).hasParseError());
+
+    // Expression
+    assertNoParseError(JavacParse.parseExpression(e1), e1);
+    assertNoParseError(JavacParse.parseExpression(e2), e2);
+    assertNoParseError(JavacParse.parseExpression(e3), e3);
+    assertNoParseError(JavacParse.parseExpression(e4), e4);
+
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu1), scu1);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu2), scu2);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu3), scu3);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu4), scu4);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu5), scu5);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu6), scu6);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu7), scu7);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu8), scu8);
+    assertNoParseError(JavacParse.parseTypeDeclaration(scu9), scu9);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu10), scu10);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu11), scu11);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu12), scu12);
+    assertTrue(JavacParse.parseCompilationUnit(invalid1).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(invalid2).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(invalid3).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(invalid4).hasParseError());
   }
 
   /**
