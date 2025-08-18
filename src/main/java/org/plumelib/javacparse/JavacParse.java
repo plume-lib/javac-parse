@@ -31,7 +31,7 @@ public final class JavacParse {
    * Parse a Java file.
    *
    * @param filename the file to parse
-   * @return a (parsed) compilation unit
+   * @return a (parsed) compilation unit, which may include parse errors
    * @throws IOException if there is trouble reading the file
    */
   public static JavacParseResult<CompilationUnitTree> parseFile(String filename)
@@ -43,7 +43,7 @@ public final class JavacParse {
    * Parse a Java file's contents.
    *
    * @param javaCode the contents of a Java file
-   * @return a (parsed) compilation unit
+   * @return a (parsed) compilation unit, which may include parse errors
    */
   public static JavacParseResult<CompilationUnitTree> parseCompilationUnit(String javaCode) {
     try {
@@ -141,7 +141,7 @@ public final class JavacParse {
    * Parse the contents of a JavaFileObject.
    *
    * @param source a JavaFileObject
-   * @return a compilation unit and the parse errors encountered in it
+   * @return a (parsed) compilation unit, which may include parse errors
    * @throws IOException if there is trouble reading the file
    */
   @SuppressWarnings("try") // `fileManagerUnused` is not used
