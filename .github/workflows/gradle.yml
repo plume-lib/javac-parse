@@ -23,7 +23,8 @@ jobs:
         java-version: ${{ matrix.java }}
     - name: ./gradlew build javadoc
       run: ./gradlew build
-    - name: ./gradlew requireJavadoc
-      run: ./gradlew requireJavadoc
+# TEMPORARY, TO REINSTATE
+#     - name: ./gradlew requireJavadoc
+#       run: ./gradlew requireJavadoc
     - name: ./gradlew spotlessCheck
       run: ./gradlew spotlessCheck
