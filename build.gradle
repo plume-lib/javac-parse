@@ -118,8 +118,9 @@ tasks.withType(JavaCompile).configureEach {
   // Don't use --release because it is incompatible with --add-exports.
   //   options.release = 11
   options.errorprone {
-    disable('ExtendsObject')  // Incorrect when using the Checker Framework
+    disable('ExtendsObject')  // Incorrect when using the Checker Framework.
     disable('ReferenceEquality') // Use Interning Checker instead.
+    disable('DoNotCallSuggester') // Suggests use of an Error Prone annotation.
   }
   options.errorprone.enabled = isJava17orHigher
 }
