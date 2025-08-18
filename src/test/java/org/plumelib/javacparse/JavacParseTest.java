@@ -11,13 +11,13 @@ import org.plumelib.util.SystemPlume;
 class JavacParseTest {
   @Test
   void javacParseTest() {
-    assertThrows(IOException.class, () -> JavacParse.parseJavaFile("foo bar"));
+    assertThrows(IOException.class, () -> JavacParse.parseFile("foo bar"));
 
     JavacParseResult<CompilationUnitTree> r1 =
-        JavacParse.parseJavaCode("class MyClass { void m() {} }");
+        JavacParse.parseCompilationUnit("class MyClass { void m() {} }");
     assertFalse(r1.hasParseError());
     JavacParseResult<CompilationUnitTree> r2 =
-        JavacParse.parseJavaCode("class SyntaxError { void () {} }");
+        JavacParse.parseCompilationUnit("class SyntaxError { void () {} }");
     assertTrue(r2.hasParseError());
   }
 
@@ -36,7 +36,7 @@ class JavacParseTest {
         for (int k = 0; k < 1000; k++) {
           sj.add("class MyClass" + k + " { void m() {} }");
         }
-        JavacParse.parseJavaCode(sj.toString());
+        JavacParse.parseCompilationUnit(sj.toString());
       }
       String msg = SystemPlume.gcUsageMessage(.3, 10);
       if (msg != null) {
