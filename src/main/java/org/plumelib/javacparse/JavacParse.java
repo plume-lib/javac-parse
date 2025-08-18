@@ -32,7 +32,7 @@ public final class JavacParse {
    * @return a (parsed) compilation unit, which may include parse errors
    * @throws IOException if there is trouble reading the file
    */
-  public static JavacParseResult<CompilationUnitTree> parseJavaFile(String filename)
+  public static JavacParseResult<CompilationUnitTree> parseFile(String filename)
       throws IOException {
     return parseJavaFileObject(new FileJavaFileObject(filename));
   }
@@ -43,7 +43,7 @@ public final class JavacParse {
    * @param javaCode the contents of a Java file
    * @return a (parsed) compilation unit, which may include parse errors
    */
-  public static JavacParseResult<CompilationUnitTree> parseJavaCode(String javaCode) {
+  public static JavacParseResult<CompilationUnitTree> parseCompilationUnit(String javaCode) {
     try {
       return parseJavaFileObject(new StringJavaFileObject(javaCode));
     } catch (IOException e) {
