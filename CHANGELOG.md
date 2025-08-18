@@ -2,9 +2,10 @@
 
 ## 1.0.0 (2025-08-17)
 
+- Made `JavacParseResult` a generic class.
 - Renamed `parseJavaFile()` to `parseFile();`.
 - Renamed `parseJavaCode()` to `parseCompilationUnit()`.
-- Made `JavacParseResult` a generic class.
+- New method `parseTypeDeclaration()`.
 
 ## 0.2.0 (2024-06-15)
 

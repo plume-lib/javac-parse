@@ -2,7 +2,9 @@ package org.plumelib.javacparse;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.EmptyStatementTree;
 import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.Tree;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.parser.JavacParser;
 import com.sun.tools.javac.parser.ParserFactory;
@@ -11,6 +13,7 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import javax.tools.DiagnosticCollector;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
@@ -54,20 +57,57 @@ public final class JavacParse {
   }
 
   /**
-   * Parses the given Java class.
+   * Parses the given Java type declaration (class, interface, enum, record, etc.).
    *
-   * @param classSource the string representation of a Java expression
-   * @return the parsed expression
+   * @param classSource the string representation of a Java type declaration
+   * @return the parsed type declaration
    */
-  public static JavacParseResult<ClassTree> parseClass(String classSource) {
-    // JavacParseResult<CompilationUnitTree> parsedFile = parseCompilationUnit(classSource);
+  public static JavacParseResult<ClassTree> parseTypeDeclaration(String classSource) {
+    JavacParseResult<CompilationUnitTree> parsedCU = parseCompilationUnit(classSource);
 
-    // TODO
-    throw new Error("to implement");
+    CompilationUnitTree cu = parsedCU.getTree();
+
+    if (!cu.getImports().isEmpty()) {
+      throw new IllegalArgumentException(
+          "Type declaration source code has imports: " + classSource);
+    }
+    if (cu.getModule() != null) {
+      throw new IllegalArgumentException(
+          "Type declaration source code has a module declaration: " + classSource);
+    }
+    if (cu.getPackage() != null) {
+      throw new IllegalArgumentException(
+          "Type declaration source code has a package declaration: " + classSource);
+    }
+
+    List<? extends Tree> decls = cu.getTypeDecls();
+    for (Tree decl : decls) {
+      if (decl instanceof EmptyStatementTree) {
+        throw new IllegalArgumentException(
+            "Type declaration source code contains a top-level `;`: " + classSource);
+      }
+    }
+    if (decls.size() != 1) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Type declaration source code has %d top-level forms, not 1: %s",
+              decls.size(), classSource));
+    }
+
+    Tree decl = decls.get(0);
+    if (decl instanceof ClassTree) {
+      return new JavacParseResult<ClassTree>((ClassTree) decl, parsedCU.getDiagnostics());
+    } else {
+      throw new IllegalArgumentException(
+          "source code should be a type declaration but is "
+              + decl.getClass().getSimpleName()
+              + ":"
+              + classSource);
+    }
   }
 
   /**
-   * Parses the given Java method.
+   * Parses the given Java method or annotation type element.
    *
    * @param methodSource the string representation of a Java expression
    * @return the parsed expression
