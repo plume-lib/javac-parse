@@ -6,6 +6,7 @@ import com.sun.source.tree.EmptyStatementTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.VariableTree;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.parser.JavacParser;
 import com.sun.tools.javac.parser.ParserFactory;
@@ -14,6 +15,7 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import javax.tools.DiagnosticCollector;
 import javax.tools.DiagnosticListener;
@@ -65,6 +67,8 @@ public final class JavacParse {
    */
   public static JavacParseResult<ClassTree> parseTypeDeclaration(String classSource) {
     JavacParseResult<CompilationUnitTree> parsedCU = parseCompilationUnit(classSource);
+
+    // TODO: test for parse error?
 
     CompilationUnitTree cu = parsedCU.getTree();
 
@@ -119,17 +123,42 @@ public final class JavacParse {
   }
 
   /**
-   * Parses the given Java expression string, such as "foo.bar()" or "1 + 2"
+   * Parses the given Java expression string, such as "foo.bar()" or "1 + 2".
    *
    * @param expressionSource the string representation of a Java expression
    * @return the parsed expression
    */
   public static JavacParseResult<ExpressionTree> parseExpression(String expressionSource) {
-    try {
-      return parseExpression(new StringJavaFileObject(expressionSource));
-    } catch (IOException e) {
-      throw new Error("This can't happen", e);
+    // This version may parse a prefix rather than the entire expression.
+    // try {
+    //   return parseExpression(new StringJavaFileObject(expressionSource));
+    // } catch (IOException e) {
+    //   throw new Error("This can't happen", e);
+    // }
+
+    String dummySource = "class ParseExpression { Object expression = " + expressionSource + "; }";
+
+    JavacParseResult<CompilationUnitTree> cuParse = parseCompilationUnit(dummySource);
+
+    if (cuParse.hasParseError()) {
+      String msg = cuParse.getParseErrorMessages();
+      if (msg.isEmpty()) {
+        throw new Error("Has parse errors, but empty message: " + cuParse.getDiagnostics());
+      }
+      throw new IllegalArgumentException("Invalid expression (" + msg + "): " + expressionSource);
     }
+
+    CompilationUnitTree cu = cuParse.getTree();
+
+    ClassTree classDecl = (ClassTree) cu.getTypeDecls().get(0);
+    List<? extends Tree> members = classDecl.getMembers();
+    if (members.size() != 1) {
+      // This was an injection attack, such as "0; int x = 1".
+      throw new IllegalArgumentException("Invalid expression: " + expressionSource);
+    }
+
+    ExpressionTree expr = ((VariableTree) members.get(0)).getInitializer();
+    return new JavacParseResult<>(expr, Collections.emptyList());
   }
 
   /**
@@ -187,12 +216,19 @@ public final class JavacParse {
   }
 
   /**
-   * Parse a Java expression
+   * Parse a Java expression.
+   *
+   * <p><b>Warning:</b> If the prefix of the string is a Java expression, this may return the result
+   * of parsing that prefix, even if the whole string is not an expression. For example, it parses
+   * "Hello this is nonsense." without error as an identifier "Hello", but it parses "1 +" into a
+   * parse error. Therefore, this routine is not appropriate for most uses.
    *
    * @param source a JavaFileObject
    * @return a (parsed) expression, possibly an ErroneousTree
    * @throws IOException if there is trouble reading the file
+   * @deprecated may parse a prefix rather than the whole string
    */
+  @Deprecated // not for removal
   @SuppressWarnings("try") // `fileManagerUnused` is not used
   public static JavacParseResult<ExpressionTree> parseExpression(JavaFileObject source)
       throws IOException {

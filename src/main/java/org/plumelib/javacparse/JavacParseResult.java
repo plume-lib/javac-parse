@@ -2,6 +2,7 @@ package org.plumelib.javacparse;
 
 import com.sun.source.tree.Tree;
 import java.util.List;
+import java.util.StringJoiner;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
@@ -54,5 +55,22 @@ public final class JavacParseResult<T extends Tree> {
    */
   public final boolean hasParseError() {
     return diagnostics.stream().anyMatch(d -> d.getKind() == Diagnostic.Kind.ERROR);
+  }
+
+  /**
+   * Returns all the parse error messages, concatenated. May return an empty string.
+   *
+   * @return all the parse error messages, concatenated
+   */
+  public final String getParseErrorMessages() {
+    StringJoiner sj = new StringJoiner("; ");
+    for (Diagnostic<? extends JavaFileObject> d : diagnostics) {
+      if (d.getKind() == Diagnostic.Kind.ERROR) {
+        @SuppressWarnings("nullness:argument") // javac is not annotated
+        String msg = d.getMessage(null);
+        sj.add(msg);
+      }
+    }
+    return sj.toString();
   }
 }
