@@ -3,6 +3,7 @@ package org.plumelib.javacparse;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.EmptyStatementTree;
+import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.file.JavacFileManager;
@@ -39,7 +40,7 @@ public final class JavacParse {
    */
   public static JavacParseResult<CompilationUnitTree> parseFile(String filename)
       throws IOException {
-    return parseJavaFileObject(new FileJavaFileObject(filename));
+    return parseCompilationUnit(new FileJavaFileObject(filename));
   }
 
   /**
@@ -50,7 +51,7 @@ public final class JavacParse {
    */
   public static JavacParseResult<CompilationUnitTree> parseCompilationUnit(String javaCode) {
     try {
-      return parseJavaFileObject(new StringJavaFileObject(javaCode));
+      return parseCompilationUnit(new StringJavaFileObject(javaCode));
     } catch (IOException e) {
       throw new Error("This can't happen", e);
     }
@@ -178,6 +179,33 @@ public final class JavacParse {
   */
 
   /**
+   * Parses the given Java type declaration (class, interface, enum, record, etc.).
+   *
+   * @param classSource the string representation of a Java type declaration
+   * @return the parsed type declaration
+   */
+  public static JavacParseResult<ExpressionTree> parseTypeUse(String classSource) {
+    try {
+      return parseTypeUse(new StringJavaFileObject(classSource));
+    } catch (IOException e) {
+      throw new Error("This can't happen", e);
+    }
+  }
+
+  // ///////////////////////////////////////////////////////////////////////////
+  // Low-level routines
+  //
+
+  // All the routines below this point are copies of one another.
+
+  // Implementation notes:
+  // 1. The documentation of Context says "a single Context is used for each invocation of the
+  //    compiler".  Re-using the Context causes an error "duplicate context value" in the compiler.
+  //    A Context is just a map.
+  // 2. Calling `new JavacFileManager` sets a mapping in `context`.  It is necessary to avoid
+  //    "this.fileManager is null" error in com.sun.tools.javac.comp.Modules.<init>.
+
+  /**
    * Parse the contents of a JavaFileObject.
    *
    * @param source a JavaFileObject
@@ -185,17 +213,12 @@ public final class JavacParse {
    * @throws IOException if there is trouble reading the file
    */
   @SuppressWarnings("try") // `fileManagerUnused` is not used
-  public static JavacParseResult<CompilationUnitTree> parseJavaFileObject(JavaFileObject source)
+  public static JavacParseResult<CompilationUnitTree> parseCompilationUnit(JavaFileObject source)
       throws IOException {
-    // The documentation of Context says "a single Context is used for each invocation of the
-    // compiler".  Re-using the Context causes an error "duplicate context value" in the compiler.
-    // A Context is just a map.
     Context context = new Context();
-
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
     context.put(DiagnosticListener.class, diagnostics);
 
-    // Needed to avoid "this.fileManager is null" error in com.sun.tools.javac.comp.Modules.<init>.
     try (@SuppressWarnings("UnusedVariable") // `new JavacFileManager` sets a mapping in `context`.
         JavacFileManager fileManagerUnused =
             new JavacFileManager(context, true, StandardCharsets.UTF_8)) {
@@ -206,6 +229,32 @@ public final class JavacParse {
       CompilationUnitTree cu = parser.parseCompilationUnit();
       ((JCCompilationUnit) cu).sourcefile = source;
       return new JavacParseResult<>(cu, diagnostics.getDiagnostics());
+    }
+  }
+
+  /**
+   * Parse a type use.
+   *
+   * @param source a JavaFileObject
+   * @return a (parsed) type use, possibly an ErroneousTree
+   * @throws IOException if there is trouble reading the file
+   */
+  @SuppressWarnings("try") // `fileManagerUnused` is not used
+  public static JavacParseResult<ExpressionTree> parseTypeUse(JavaFileObject source)
+      throws IOException {
+    Context context = new Context();
+    DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+    context.put(DiagnosticListener.class, diagnostics);
+
+    try (@SuppressWarnings("UnusedVariable") // `new JavacFileManager` sets a mapping in `context`.
+        JavacFileManager fileManagerUnused =
+            new JavacFileManager(context, true, StandardCharsets.UTF_8)) {
+
+      Log.instance(context).useSource(source);
+      ParserFactory parserFactory = ParserFactory.instance(context);
+      JavacParser parser = parserFactory.newParser(source.getCharContent(false), true, true, true);
+      ExpressionTree eTree = parser.parseType();
+      return new JavacParseResult<ExpressionTree>(eTree, diagnostics.getDiagnostics());
     }
   }
 }
