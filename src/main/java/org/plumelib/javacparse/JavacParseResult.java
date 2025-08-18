@@ -5,7 +5,11 @@ import java.util.List;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
-/** Represents the result of parsing Java code (a file or a subpart thereof). */
+/**
+ * Represents the result of parsing Java code (a file or a subpart thereof).
+ *
+ * @param <T> the type of the Java code being parsed
+ */
 public final class JavacParseResult<T extends Tree> {
 
   /** The parse tree. */
@@ -26,7 +30,7 @@ public final class JavacParseResult<T extends Tree> {
   }
 
   /**
-   * Returns the parse tree
+   * Returns the parse tree.
    *
    * @return the parse tree
    */

@@ -1,5 +1,8 @@
 package org.plumelib.javacparse;
 
+import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.MethodTree;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.parser.JavacParser;
 import com.sun.tools.javac.parser.ParserFactory;
@@ -13,8 +16,7 @@ import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 
 /**
- * This class contains static methods {@link #parseJavaFile} and {@link #parseJavaCode} that parse
- * Java code into a JCCompilationUnit.
+ * This class contains static methods that parse Java code.
  *
  * <p>Internally, this class calls the javac parser from the JDK.
  */
@@ -32,7 +34,8 @@ public final class JavacParse {
    * @return a (parsed) compilation unit
    * @throws IOException if there is trouble reading the file
    */
-  public static JavacParseResult<JCCompilationUnit> parseFile(String filename) throws IOException {
+  public static JavacParseResult<CompilationUnitTree> parseFile(String filename)
+      throws IOException {
     return parseJavaFileObject(new FileJavaFileObject(filename));
   }
 
@@ -42,7 +45,7 @@ public final class JavacParse {
    * @param javaCode the contents of a Java file
    * @return a (parsed) compilation unit
    */
-  public static JavacParseResult<CompilationUnit> parseCompilationUnit(String javaCode) {
+  public static JavacParseResult<CompilationUnitTree> parseCompilationUnit(String javaCode) {
     try {
       return parseJavaFileObject(new StringJavaFileObject(javaCode));
     } catch (IOException e) {
@@ -53,31 +56,34 @@ public final class JavacParse {
   /**
    * Parses the given Java class.
    *
-   * @param expressionSource the string representation of a Java expression
+   * @param classSource the string representation of a Java expression
    * @return the parsed expression
    */
   public static JavacParseResult<ClassTree> parseClass(String classSource) {
-    JavacParseResult<CompilationUnit> parsedFile = parseJavaFileContents(classSource);
+    // JavacParseResult<CompilationUnitTree> parsedFile = parseCompilationUnit(classSource);
 
     // TODO
+    throw new Error("to implement");
   }
 
   /**
    * Parses the given Java method.
    *
-   * @param expressionSource the string representation of a Java expression
+   * @param methodSource the string representation of a Java expression
    * @return the parsed expression
    */
   public static JavacParseResult<MethodTree> parseMethod(String methodSource) {
     // TODO
+    throw new Error("to implement");
   }
 
-  /**
+  /*
    * Parses the given Java expression string, such as "foo.bar()" or "1 + 2"
    *
    * @param expressionSource the string representation of a Java expression
    * @return the parsed expression
    */
+  /*
   public static JavacParseResult<ExpressionTree> parseExpression(String expressionSource) {
 
     String dummySource = "class ParseExpression { Object expression = " + expressionSource + "; }";
@@ -105,8 +111,8 @@ public final class JavacParse {
                   null,
                   Collections.singletonList(fileObject));
 
-      // Parse the source and extract the CompilationUnit
-      CompilationUnitTree cu = task.parse().iterator().next();
+      // Parse the source and extract the CompilationUnitTree
+      CompilationUnitTreeTree cu = task.parse().iterator().next();
 
       for (Diagnostic<? extends JavaFileObject> d : diags.getDiagnostics()) {
         if (d.getKind() == Diagnostic.Kind.ERROR) {
@@ -129,6 +135,7 @@ public final class JavacParse {
       throw new RuntimeException("Expression parsing failed", e);
     }
   }
+  */
 
   /**
    * Parse the contents of a JavaFileObject.
@@ -137,7 +144,8 @@ public final class JavacParse {
    * @return a compilation unit and the parse errors encountered in it
    * @throws IOException if there is trouble reading the file
    */
-  public static JavacParseResult<JCCompilationUnit> parseJavaFileObject(JavaFileObject source)
+  @SuppressWarnings("try") // `fileManagerUnused` is not used
+  public static JavacParseResult<CompilationUnitTree> parseJavaFileObject(JavaFileObject source)
       throws IOException {
     // The documentation of Context says "a single Context is used for each invocation of the
     // compiler".  Re-using the Context causes an error "duplicate context value" in the compiler.
@@ -155,9 +163,9 @@ public final class JavacParse {
       Log.instance(context).useSource(source);
       ParserFactory parserFactory = ParserFactory.instance(context);
       JavacParser parser = parserFactory.newParser(source.getCharContent(false), true, true, true);
-      JCCompilationUnit cu = parser.parseCompilationUnit();
-      cu.sourcefile = source;
-      return new JavacParseResult(cu, diagnostics.getDiagnostics());
+      CompilationUnitTree cu = parser.parseCompilationUnit();
+      ((JCCompilationUnit) cu).sourcefile = source;
+      return new JavacParseResult<>(cu, diagnostics.getDiagnostics());
     }
   }
 }
