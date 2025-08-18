@@ -1,5 +1,11 @@
 # javac-parse change log
 
+## 1.0.0 (2025-08-17)
+
+- Renamed `parseJavaFile()` to `parseFile();`.
+- Renamed `parseJavaCode()` to `parseCompilationUnit()`.
+- Made `JavacParseResult` a generic class.
+
 ## 0.2.0 (2024-06-15)
 
 - `parse*` methods return a `JavacParseResult` rather than a possibly-null `CompilationUnit`.
