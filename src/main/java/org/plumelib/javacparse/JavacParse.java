@@ -118,65 +118,19 @@ public final class JavacParse {
     throw new Error("to implement");
   }
 
-  /*
+  /**
    * Parses the given Java expression string, such as "foo.bar()" or "1 + 2"
    *
    * @param expressionSource the string representation of a Java expression
    * @return the parsed expression
    */
-  /*
   public static JavacParseResult<ExpressionTree> parseExpression(String expressionSource) {
-
-    String dummySource = "class ParseExpression { Object expression = " + expressionSource + "; }";
-
-    JavaFileObject fileObject =
-        new SimpleJavaFileObject(
-            URI.create("string:///ParseExpression.java"), JavaFileObject.Kind.SOURCE) {
-          @Override
-          public CharSequence getCharContent(boolean ignoreEncodingErrors) {
-            return dummySource;
-          }
-        };
-
-    DiagnosticCollector<JavaFileObject> diags = new DiagnosticCollector<>();
-
-    // Prepare the file manager and task
     try {
-      JavacTask task =
-          (JavacTask)
-              javaCompiler.getTask(
-                  null,
-                  fileManager,
-                  diags,
-                  Collections.emptyList(),
-                  null,
-                  Collections.singletonList(fileObject));
-
-      // Parse the source and extract the CompilationUnitTree
-      CompilationUnitTreeTree cu = task.parse().iterator().next();
-
-      for (Diagnostic<? extends JavaFileObject> d : diags.getDiagnostics()) {
-        if (d.getKind() == Diagnostic.Kind.ERROR) {
-          throw new RuntimeException("Expression is not valid: " + d.getMessage(null));
-        }
-      }
-
-      // Get the first member (the dummy field) from the ClassTree and cast to VariableTree
-      ClassTree classTree = (ClassTree) cu.getTypeDecls().get(0);
-      VariableTree varTree = (VariableTree) classTree.getMembers().get(0);
-
-      ExpressionTree expr = varTree.getInitializer();
-      if (expr == null) {
-        throw new RuntimeException("Expression not found in AST.");
-      }
-
-      return expr;
-
-    } catch (IOException | IndexOutOfBoundsException | ClassCastException e) {
-      throw new RuntimeException("Expression parsing failed", e);
+      return parseExpression(new StringJavaFileObject(expressionSource));
+    } catch (IOException e) {
+      throw new Error("This can't happen", e);
     }
   }
-  */
 
   /**
    * Parses the given Java type declaration (class, interface, enum, record, etc.).
@@ -229,6 +183,32 @@ public final class JavacParse {
       CompilationUnitTree cu = parser.parseCompilationUnit();
       ((JCCompilationUnit) cu).sourcefile = source;
       return new JavacParseResult<>(cu, diagnostics.getDiagnostics());
+    }
+  }
+
+  /**
+   * Parse a Java expression
+   *
+   * @param source a JavaFileObject
+   * @return a (parsed) expression, possibly an ErroneousTree
+   * @throws IOException if there is trouble reading the file
+   */
+  @SuppressWarnings("try") // `fileManagerUnused` is not used
+  public static JavacParseResult<ExpressionTree> parseExpression(JavaFileObject source)
+      throws IOException {
+    Context context = new Context();
+    DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+    context.put(DiagnosticListener.class, diagnostics);
+
+    try (@SuppressWarnings("UnusedVariable") // `new JavacFileManager` sets a mapping in `context`.
+        JavacFileManager fileManagerUnused =
+            new JavacFileManager(context, true, StandardCharsets.UTF_8)) {
+
+      Log.instance(context).useSource(source);
+      ParserFactory parserFactory = ParserFactory.instance(context);
+      JavacParser parser = parserFactory.newParser(source.getCharContent(false), true, true, true);
+      ExpressionTree eTree = parser.parseExpression();
+      return new JavacParseResult<ExpressionTree>(eTree, diagnostics.getDiagnostics());
     }
   }
 

@@ -7,6 +7,7 @@
 - Renamed `parseJavaCode()` to `parseCompilationUnit()`.
 - Renamed `parseJavaFileObject()` to `parseCompilationUnit()`.
 - New method `parseTypeDeclaration()`.
+- New method `parseExpression()`.
 - New method `parseTypeUse()`.
 
 ## 0.2.0 (2024-06-15)
