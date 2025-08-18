@@ -132,60 +132,6 @@ public final class JavacParse {
     }
   }
 
-  /*
-  public static JavacParseResult<ExpressionTree> parseExpression(String expressionSource) {
-
-    String dummySource = "class ParseExpression { Object expression = " + expressionSource + "; }";
-
-    JavaFileObject fileObject =
-        new SimpleJavaFileObject(
-            URI.create("string:///ParseExpression.java"), JavaFileObject.Kind.SOURCE) {
-          @Override
-          public CharSequence getCharContent(boolean ignoreEncodingErrors) {
-            return dummySource;
-          }
-        };
-
-    DiagnosticCollector<JavaFileObject> diags = new DiagnosticCollector<>();
-
-    // Prepare the file manager and task
-    try {
-      JavacTask task =
-          (JavacTask)
-              javaCompiler.getTask(
-                  null,
-                  fileManager,
-                  diags,
-                  Collections.emptyList(),
-                  null,
-                  Collections.singletonList(fileObject));
-
-      // Parse the source and extract the CompilationUnitTree
-      CompilationUnitTreeTree cu = task.parse().iterator().next();
-
-      for (Diagnostic<? extends JavaFileObject> d : diags.getDiagnostics()) {
-        if (d.getKind() == Diagnostic.Kind.ERROR) {
-          throw new RuntimeException("Expression is not valid: " + d.getMessage(null));
-        }
-      }
-
-      // Get the first member (the dummy field) from the ClassTree and cast to VariableTree
-      ClassTree classTree = (ClassTree) cu.getTypeDecls().get(0);
-      VariableTree varTree = (VariableTree) classTree.getMembers().get(0);
-
-      ExpressionTree expr = varTree.getInitializer();
-      if (expr == null) {
-        throw new RuntimeException("Expression not found in AST.");
-      }
-
-      return expr;
-
-    } catch (IOException | IndexOutOfBoundsException | ClassCastException e) {
-      throw new RuntimeException("Expression parsing failed", e);
-    }
-  }
-  */
-
   /**
    * Parses the given Java type declaration (class, interface, enum, record, etc.).
    *
