@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.LiteralTree;
-import com.sun.source.tree.MemberReferenceTree;
+import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.Tree;
 import java.io.IOException;
 import java.util.StringJoiner;
@@ -130,10 +130,10 @@ class JavacParseTest {
     assertNoParseError(JavacParse.parseExpression(e6), e6);
     assertNoParseError(JavacParse.parseExpression(e7), e7);
     assertNoParseError(JavacParse.parseExpression(e8), e8);
-    JavacParseResult<ExpressionTree> jpr8 = JavacParse.parseExpression(e8);
-    assertTrue(jpr8.getTree() instanceof LiteralTree);
-    JavacParseResult<ExpressionTree> jpr7 = JavacParse.parseExpression(e7);
-    assertTrue(jpr7.getTree() instanceof MemberReferenceTree);
+    JavacParseResult<ExpressionTree> e7jpr = JavacParse.parseExpression(e7);
+    assertTrue(e7jpr.getTree() instanceof MemberSelectTree);
+    JavacParseResult<ExpressionTree> e8jpr = JavacParse.parseExpression(e8);
+    assertTrue(e8jpr.getTree() instanceof LiteralTree);
 
     assertIllegalArgument(() -> JavacParse.parseExpression(scu1), scu1);
     assertIllegalArgument(() -> JavacParse.parseExpression(scu2), scu2);
