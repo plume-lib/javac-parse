@@ -73,4 +73,20 @@ public final class JavacParseResult<T extends Tree> {
     }
     return sj.toString();
   }
+
+  public String toString() {
+    String prefix = "JPR{" + tree + " [" + tree.getClass() + "]";
+    if (diagnostics.isEmpty()) {
+      return prefix + "}";
+    }
+
+    StringJoiner sj = new StringJoiner(System.lineSeparator());
+    sj.add(prefix);
+    for (Diagnostic<?> d : diagnostics) {
+      sj.add("  " + d);
+    }
+    sj.add("}");
+
+    return sj.toString();
+  }
 }
