@@ -3,6 +3,9 @@ package org.plumelib.javacparse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.sun.source.tree.ExpressionTree;
+import com.sun.source.tree.LiteralTree;
+import com.sun.source.tree.MemberReferenceTree;
 import com.sun.source.tree.Tree;
 import java.io.IOException;
 import java.util.StringJoiner;
@@ -45,6 +48,7 @@ class JavacParseTest {
     String e5 = "x instanceof @Nullable Object";
     String e6 = "String.class";
     String e7 = "java.lang.String.class";
+    String e8 = "\"hello\"";
 
     // Invalid code.
     String invalid1 = "Hello this is nonsense.";
@@ -77,6 +81,7 @@ class JavacParseTest {
     assertTrue(JavacParse.parseCompilationUnit(e5).hasParseError());
     assertTrue(JavacParse.parseCompilationUnit(e6).hasParseError());
     assertTrue(JavacParse.parseCompilationUnit(e7).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(e8).hasParseError());
     assertTrue(JavacParse.parseCompilationUnit(invalid1).hasParseError());
     assertTrue(JavacParse.parseCompilationUnit(invalid2).hasParseError());
     assertTrue(JavacParse.parseCompilationUnit(invalid3).hasParseError());
@@ -107,6 +112,7 @@ class JavacParseTest {
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(e5), e5);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(e6), e6);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(e7), e7);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(e8), e8);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid1), invalid1);
     assertTrue(JavacParse.parseTypeDeclaration(invalid2).hasParseError());
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid3), invalid3);
@@ -123,7 +129,11 @@ class JavacParseTest {
     assertNoParseError(JavacParse.parseExpression(e5), e5);
     assertNoParseError(JavacParse.parseExpression(e6), e6);
     assertNoParseError(JavacParse.parseExpression(e7), e7);
-    System.out.println(JavacParse.parseExpression(e6));
+    assertNoParseError(JavacParse.parseExpression(e8), e8);
+    JavacParseResult<ExpressionTree> jpr8 = JavacParse.parseExpression(e8);
+    assertTrue(jpr8.getTree() instanceof LiteralTree);
+    JavacParseResult<ExpressionTree> jpr7 = JavacParse.parseExpression(e7);
+    assertTrue(jpr7.getTree() instanceof MemberReferenceTree);
 
     assertIllegalArgument(() -> JavacParse.parseExpression(scu1), scu1);
     assertIllegalArgument(() -> JavacParse.parseExpression(scu2), scu2);
