@@ -44,10 +44,13 @@ class JavacParseTest {
     String e4 = "x instanceof Object";
 
     // Invalid code.
-    String invalid1 = "class SyntaxError { void () {} }";
-    String invalid2 = si1 + invalid1;
-    String invalid3 = "Hello this is nonsense.";
-    String invalid4 = "1 +";
+    String invalid1 = "Hello this is nonsense.";
+    String invalid2 = "class SyntaxError { void () {} }";
+    String invalid3 = si1 + invalid2;
+    String invalid4 = si1 + "+";
+    String invalid5 = invalid2 + invalid1;
+    String invalid6 = scu1 + invalid1;
+    String invalid7 = "1 +";
 
     // Compilation unit.
 
@@ -72,9 +75,13 @@ class JavacParseTest {
     assertTrue(JavacParse.parseCompilationUnit(invalid2).hasParseError());
     assertTrue(JavacParse.parseCompilationUnit(invalid3).hasParseError());
     assertTrue(JavacParse.parseCompilationUnit(invalid4).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(invalid5).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(invalid6).hasParseError());
+    assertTrue(JavacParse.parseCompilationUnit(invalid7).hasParseError());
 
     // Class
     assertNoParseError(JavacParse.parseTypeDeclaration(sc1), sc1);
+    assertNoParseError(JavacParse.parseTypeDeclaration(scu9), scu9);
 
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu1), scu1);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu2), scu2);
@@ -84,18 +91,20 @@ class JavacParseTest {
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu6), scu6);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu7), scu7);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu8), scu8);
-    assertNoParseError(JavacParse.parseTypeDeclaration(scu9), scu9);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu10), scu10);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu11), scu11);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu12), scu12);
-    assertTrue(JavacParse.parseCompilationUnit(e1).hasParseError());
-    assertTrue(JavacParse.parseCompilationUnit(e2).hasParseError());
-    assertTrue(JavacParse.parseCompilationUnit(e3).hasParseError());
-    assertTrue(JavacParse.parseCompilationUnit(e4).hasParseError());
-    assertTrue(JavacParse.parseCompilationUnit(invalid1).hasParseError());
-    assertTrue(JavacParse.parseCompilationUnit(invalid2).hasParseError());
-    assertTrue(JavacParse.parseCompilationUnit(invalid3).hasParseError());
-    assertTrue(JavacParse.parseCompilationUnit(invalid4).hasParseError());
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(e1), e1);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(e2), e2);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(e3), e3);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(e4), e4);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid1), invalid1);
+    assertTrue(JavacParse.parseTypeDeclaration(invalid2).hasParseError());
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid3), invalid3);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid4), invalid4);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid5), invalid5);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid6), invalid6);
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid7), invalid7);
 
     // Expression
     assertNoParseError(JavacParse.parseExpression(e1), e1);
@@ -103,22 +112,25 @@ class JavacParseTest {
     assertNoParseError(JavacParse.parseExpression(e3), e3);
     assertNoParseError(JavacParse.parseExpression(e4), e4);
 
-    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu1), scu1);
-    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu2), scu2);
-    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu3), scu3);
-    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu4), scu4);
-    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu5), scu5);
-    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu6), scu6);
-    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu7), scu7);
-    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu8), scu8);
-    assertNoParseError(JavacParse.parseTypeDeclaration(scu9), scu9);
-    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu10), scu10);
-    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu11), scu11);
-    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(scu12), scu12);
-    assertTrue(JavacParse.parseCompilationUnit(invalid1).hasParseError());
-    assertTrue(JavacParse.parseCompilationUnit(invalid2).hasParseError());
-    assertTrue(JavacParse.parseCompilationUnit(invalid3).hasParseError());
-    assertTrue(JavacParse.parseCompilationUnit(invalid4).hasParseError());
+    assertIllegalArgument(() -> JavacParse.parseExpression(scu1), scu1);
+    assertIllegalArgument(() -> JavacParse.parseExpression(scu2), scu2);
+    assertIllegalArgument(() -> JavacParse.parseExpression(scu3), scu3);
+    assertIllegalArgument(() -> JavacParse.parseExpression(scu4), scu4);
+    assertIllegalArgument(() -> JavacParse.parseExpression(scu5), scu5);
+    assertIllegalArgument(() -> JavacParse.parseExpression(scu6), scu6);
+    assertIllegalArgument(() -> JavacParse.parseExpression(scu7), scu7);
+    assertIllegalArgument(() -> JavacParse.parseExpression(scu8), scu8);
+    assertIllegalArgument(() -> JavacParse.parseExpression(scu9), scu9);
+    assertIllegalArgument(() -> JavacParse.parseExpression(scu10), scu10);
+    assertIllegalArgument(() -> JavacParse.parseExpression(scu11), scu11);
+    assertIllegalArgument(() -> JavacParse.parseExpression(scu12), scu12);
+    assertIllegalArgument(() -> JavacParse.parseExpression(invalid1), invalid1);
+    assertIllegalArgument(() -> JavacParse.parseExpression(invalid2), invalid2);
+    assertIllegalArgument(() -> JavacParse.parseExpression(invalid3), invalid3);
+    assertIllegalArgument(() -> JavacParse.parseExpression(invalid4), invalid4);
+    assertIllegalArgument(() -> JavacParse.parseExpression(invalid5), invalid5);
+    assertIllegalArgument(() -> JavacParse.parseExpression(invalid6), invalid6);
+    assertIllegalArgument(() -> JavacParse.parseExpression(invalid7), invalid7);
   }
 
   /**
