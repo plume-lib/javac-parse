@@ -3,15 +3,15 @@
 ## 1.0.0 (2025-08-17)
 
 - `JavacParse`:
-   - Renamed `parseJavaFile()` to `parseFile();`.
-   - Renamed `parseJavaCode()` to `parseCompilationUnit()`.
-   - Renamed `parseJavaFileObject()` to `parseCompilationUnit()`.
-   - New method `parseTypeDeclaration()`.
-   - New method `parseExpression()`.
-   - New method `parseTypeUse()`.
+  - Renamed `parseJavaFile()` to `parseFile();`.
+  - Renamed `parseJavaCode()` to `parseCompilationUnit()`.
+  - Renamed `parseJavaFileObject()` to `parseCompilationUnit()`.
+  - New method `parseTypeDeclaration()`.
+  - New method `parseExpression()`.
+  - New method `parseTypeUse()`.
 - `JavacParseResult`
-   - Made `JavacParseResult` a generic class.
-   - New method `getParseErrorMessages()`.
+  - Made `JavacParseResult` a generic class.
+  - New method `getParseErrorMessages()`.
 
 ## 0.2.0 (2024-06-15)
 

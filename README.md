@@ -8,7 +8,6 @@ that does that setup, making it easy for you to call javac's parser.
 
 See the [API documentation](https://plumelib.org/javac-parse/api/org/plumelib/javacparse/package-summary.html).
 
-
 ## The javac AST (parse tree)
 
 A parse tree is often called an AST (abstract syntax tree).
@@ -21,15 +20,14 @@ javac-parse uses the internal javac class
 [`JCTree`](https://www.javadoc.io/static/org.kohsuke.sorcerer/sorcerer-javac/0.11/com/sun/tools/javac/tree/JCTree.html)
 and its subclasses because they provide more functionality than the interface.
 
-
-## Editing your buildfile ##
+## Editing your buildfile
 
 You can obtain the javac-parse library from [Maven
 Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.plumelib%22%20a%3A%22javac-parse%22).
 
 In a Gradle buildfile, write
 
-```
+```gradle
 dependencies {
   implementation 'org.plumelib:javac-parse:0.2.0'
 }
@@ -39,7 +37,7 @@ Other build systems are [similar](https://search.maven.org/artifact/org.plumelib
 
 You will need to add something like this to your buildfile (Gradle example):
 
-```
+```gradle
 compileJava {
   options.compilerArgs += '--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED'
   options.compilerArgs += '--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED'
@@ -70,9 +68,10 @@ javadoc {
 }
 ```
 
-When you run your program, you will need to include the `--add-exports` flags as well:
+When you run your program, you will need to include the `--add-exports` flags as
+well:
 
-```
+```sh
 java --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
      --add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED \
      --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED \
@@ -82,7 +81,6 @@ java --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
   -cp ... \
   my.package.Main
 ```
-
 
 ## Limitations
 
@@ -102,7 +100,6 @@ objects.  If desired, it would be possible to hack around javac's limitations by
 reading the file, looking at the line and column numbers of each JCTree and each
 comment, and assigning the comments appropriately.)
 
-
 ## Alternatives
 
 [OpenRewrite](https://github.com/openrewrite/rewrite) internally uses the javac
@@ -117,7 +114,6 @@ handling, see above).
 Unfortunately, maintenance is sporadic, and JavaParser contains many bugs that
 the maintainers do not plan to fix.
 
-
 ### Transitioning from JavaParser to javac-parse
 
 One substantive difference is that javac's tree has a single class, `ClassTree`,
@@ -126,7 +122,8 @@ JavaParser represents them with distinct classes.  Likewise, javac has
 `VariableTree` for all sorts of variables, including fields, parameters, and
 locals.  To transition from JavaParser to javac-parse, you will need to change
 types in your code, such as the following:
-```
+
+```changed_types
 Node -> JCTree
   Node.getRange() -> JCTree.getStartPosition() and JCTree.getEndPosition()
 MethodDeclaration -> JCTree.JCMethodDecl
