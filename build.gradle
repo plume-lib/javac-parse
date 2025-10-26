@@ -5,11 +5,15 @@ plugins {
   id("com.gradleup.shadow").version("9.2.2")
 
   // Code formatting; defines targets "spotlessApply" and "spotlessCheck"
-  // Version 6.14.0 and later requires JRE 11+, but version 6.13.0 doesn't work on JRE 21.
+  // Version 8.0.0 and later requires Java 17+.
   id("com.diffplug.spotless").version("8.0.0")
 
   // Error Prone linter
   id("net.ltgt.errorprone").version("4.3.0") apply false
+
+  // TODO: reinstate when all PMD warnings have been addressed.
+  // // PMD linter
+  // id("pmd")
 
   // Checker Framework pluggable type-checking
   id("org.checkerframework").version("0.6.60")
@@ -108,18 +112,25 @@ spotless {
 
 // Error Prone linter
 
+tasks.withType(JavaCompile).configureEach {
+  options.forkOptions.jvmArgs += "-Xmx6g"
+  options.compilerArgs << "-Werror"
+  // "-processing" avoids javac warning "No processor claimed any of these annotations".
+  // "-options" is because of JDK 21 warning "source value 8 is obsolete..."
+  if (isJava21orHigher) {
+    options.compilerArgs << "-Xlint:all,-processing,-options,-this-escape"
+  } else {
+    options.compilerArgs << "-Xlint:all,-processing,-options"
+  }
+  // Don't use --release because it is incompatible with --add-exports.
+  //   options.release = 11
+}
 if (isJava21orHigher) {
   apply plugin: "net.ltgt.errorprone"
   dependencies {
     errorprone("com.google.errorprone:error_prone_core:${errorproneVersion}")
   }
   tasks.withType(JavaCompile).configureEach {
-    // "-processing" avoids javac warning "No processor claimed any of these annotations".
-    // "-options" is because starting in JDK 20, javac warns about using -source 8.
-    options.compilerArgs << "-Xlint:all,-processing,-options" << "-Werror"
-    options.forkOptions.jvmArgs += "-Xmx2g"
-    // Don't use --release because it is incompatible with --add-exports.
-    //   options.release = 11
     options.errorprone {
       disable("ExtendsObject")  // Incorrect when using the Checker Framework.
       disable("ReferenceEquality") // Use Interning Checker instead.
@@ -127,6 +138,18 @@ if (isJava21orHigher) {
     }
   }
 }
+
+// TODO: reinstate when all PMD warnings have been addressed.
+// // PMD linter
+//
+// pmd {
+//   toolVersion = "7.17.0"
+//   ruleSetFiles =(files("${rootDir}/.pmd-ruleset.xml"))
+//   consoleOutput = true
+//   ignoreFailures = false
+//   incrementalAnalysis = true
+// }
+
 
 // Checker Framework pluggable type-checking
 
@@ -149,6 +172,8 @@ checkerFramework {
   ]
   extraJavacArgs = [
     "-Werror",
+    "-Aversion",
+    // "-verbose",
     "-AcheckPurityAnnotations",
     "-ArequirePrefixInWarningSuppressions",
     "-AwarnRedundantAnnotations",
