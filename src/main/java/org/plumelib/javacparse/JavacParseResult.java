@@ -36,7 +36,7 @@ public final class JavacParseResult<T extends Tree> {
    *
    * @return the parse tree
    */
-  public final T getTree() {
+  public T getTree() {
     return tree;
   }
 
@@ -45,7 +45,7 @@ public final class JavacParseResult<T extends Tree> {
    *
    * @return the diagnostics
    */
-  public final List<Diagnostic<? extends JavaFileObject>> getDiagnostics() {
+  public List<Diagnostic<? extends JavaFileObject>> getDiagnostics() {
     return diagnostics;
   }
 
@@ -54,7 +54,7 @@ public final class JavacParseResult<T extends Tree> {
    *
    * @return true if at least one diagnostic is a parse error
    */
-  public final boolean hasParseError() {
+  public boolean hasParseError() {
     return diagnostics.stream().anyMatch(d -> d.getKind() == Diagnostic.Kind.ERROR);
   }
 
@@ -63,7 +63,7 @@ public final class JavacParseResult<T extends Tree> {
    *
    * @return all the parse error messages, concatenated
    */
-  public final String getParseErrorMessages() {
+  public String getParseErrorMessages() {
     StringJoiner sj = new StringJoiner("; ");
     for (Diagnostic<? extends JavaFileObject> d : diagnostics) {
       if (d.getKind() == Diagnostic.Kind.ERROR) {

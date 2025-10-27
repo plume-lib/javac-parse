@@ -101,7 +101,7 @@ public final class JavacParse {
 
     Tree decl = decls.get(0);
     if (decl instanceof ClassTree) {
-      return new JavacParseResult<ClassTree>((ClassTree) decl, parsedCU.getDiagnostics());
+      return new JavacParseResult<>((ClassTree) decl, parsedCU.getDiagnostics());
     } else {
       throw new IllegalArgumentException(
           "source code should be a type declaration but is "
@@ -202,7 +202,10 @@ public final class JavacParse {
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
     context.put(DiagnosticListener.class, diagnostics);
 
-    try (@SuppressWarnings("UnusedVariable") // `new JavacFileManager` sets a mapping in `context`.
+    try (@SuppressWarnings({
+          "UnusedVariable",
+          "PMD.UnusedLocalVariable"
+        }) // `new JavacFileManager` sets a mapping in `context`.
         JavacFileManager fileManagerUnused =
             new JavacFileManager(context, true, StandardCharsets.UTF_8)) {
 
@@ -236,7 +239,10 @@ public final class JavacParse {
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
     context.put(DiagnosticListener.class, diagnostics);
 
-    try (@SuppressWarnings("UnusedVariable") // `new JavacFileManager` sets a mapping in `context`.
+    try (@SuppressWarnings({
+          "UnusedVariable",
+          "PMD.UnusedLocalVariable"
+        }) // `new JavacFileManager` sets a mapping in `context`.
         JavacFileManager fileManagerUnused =
             new JavacFileManager(context, true, StandardCharsets.UTF_8)) {
 
@@ -244,7 +250,7 @@ public final class JavacParse {
       ParserFactory parserFactory = ParserFactory.instance(context);
       JavacParser parser = parserFactory.newParser(source.getCharContent(false), true, true, true);
       ExpressionTree eTree = parser.parseExpression();
-      return new JavacParseResult<ExpressionTree>(eTree, diagnostics.getDiagnostics());
+      return new JavacParseResult<>(eTree, diagnostics.getDiagnostics());
     }
   }
 
@@ -262,7 +268,10 @@ public final class JavacParse {
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
     context.put(DiagnosticListener.class, diagnostics);
 
-    try (@SuppressWarnings("UnusedVariable") // `new JavacFileManager` sets a mapping in `context`.
+    try (@SuppressWarnings({
+          "UnusedVariable",
+          "PMD.UnusedLocalVariable"
+        }) // `new JavacFileManager` sets a mapping in `context`.
         JavacFileManager fileManagerUnused =
             new JavacFileManager(context, true, StandardCharsets.UTF_8)) {
 
@@ -270,7 +279,7 @@ public final class JavacParse {
       ParserFactory parserFactory = ParserFactory.instance(context);
       JavacParser parser = parserFactory.newParser(source.getCharContent(false), true, true, true);
       ExpressionTree eTree = parser.parseType();
-      return new JavacParseResult<ExpressionTree>(eTree, diagnostics.getDiagnostics());
+      return new JavacParseResult<>(eTree, diagnostics.getDiagnostics());
     }
   }
 }
