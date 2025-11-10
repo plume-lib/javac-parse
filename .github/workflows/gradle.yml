@@ -23,10 +23,7 @@ jobs:
           java-version: ${{ matrix.java }}
           check-latest: true
           cache: 'gradle'
-      - name: ./gradlew build javadoc
+      - name: java -version
+        run: java -version
+      - name: ./gradlew build
         run: ./gradlew build
-# TEMPORARY, TO REINSTATE
-#       - name: ./gradlew requireJavadoc
-#         run: ./gradlew requireJavadoc
-      - name: ./gradlew spotlessCheck
-        run: ./gradlew spotlessCheck
