@@ -301,18 +301,10 @@ javadocWebChmod.mustRunAfter("javadocWebUpload")
  */
 
 
-// Publishing
-
-// To upload to Maven Central:
-// * ./gradlew publishToMavenCentral
-// * browse to https://central.sonatype.com/publishing/deployments
-
-ext {
-  packageName = "javac-parse"
-}
+// Publishing, see README-developers.md
 
 mavenPublishing {
-  coordinates("org.plumelib", "${packageName}", "0.2.0")
+  coordinates("org.plumelib", "${project.packageName}", "${project.version}")
 
   pom {
     name = "javac-parse"
