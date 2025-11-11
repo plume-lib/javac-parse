@@ -29,7 +29,7 @@ In a Gradle buildfile, write
 
 ```gradle
 dependencies {
-  implementation 'org.plumelib:javac-parse:0.2.0'
+  implementation("org.plumelib:javac-parse:0.2.0")
 }
 ```
 
@@ -39,30 +39,30 @@ You will need to add something like this to your buildfile (Gradle example):
 
 ```gradle
 compileJava {
-  options.compilerArgs += '--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED'
-  options.compilerArgs += '--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED'
-  options.compilerArgs += '--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED'
-  options.compilerArgs += '--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED'
-  options.compilerArgs += '--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED'
-  options.compilerArgs += '--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED'
+  options.compilerArgs += "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"
+  options.compilerArgs += "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"
+  options.compilerArgs += "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED"
+  options.compilerArgs += "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED"
+  options.compilerArgs += "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"
+  options.compilerArgs += "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
 }
 compileTestJava {
-  options.compilerArgs += '--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED'
-  options.compilerArgs += '--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED'
-  options.compilerArgs += '--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED'
-  options.compilerArgs += '--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED'
-  options.compilerArgs += '--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED'
-  options.compilerArgs += '--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED'
+  options.compilerArgs += "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"
+  options.compilerArgs += "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"
+  options.compilerArgs += "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED"
+  options.compilerArgs += "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED"
+  options.compilerArgs += "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"
+  options.compilerArgs += "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
 }
 javadoc {
   options {
     addMultilineStringsOption("-add-exports").setValue([
-      'jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
-      'jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
-      'jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED',
-      'jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED',
-      'jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
-      'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
+      "jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+      "jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+      "jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+      "jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+      "jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+      "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
     ])
   }
 }
