@@ -68,7 +68,13 @@ public final class JavacParse {
   public static JavacParseResult<ClassTree> parseTypeDeclaration(String classSource) {
     JavacParseResult<CompilationUnitTree> parsedCU = parseCompilationUnit(classSource);
 
-    // TODO: test for parse error?
+    if (parsedCU.hasParseError()) {
+      String msg = parsedCU.getParseErrorMessages();
+      if (msg.isEmpty()) {
+        throw new Error("Has parse errors, but empty message: " + parsedCU.getDiagnostics());
+      }
+      throw new IllegalArgumentException("Invalid type declaration (" + msg + "): " + classSource);
+    }
 
     CompilationUnitTree cu = parsedCU.getTree();
 
