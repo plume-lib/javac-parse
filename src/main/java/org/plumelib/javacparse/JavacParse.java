@@ -73,8 +73,7 @@ public final class JavacParse {
       if (msg.isEmpty()) {
         throw new Error("Has parse errors, but empty message: " + parsedCU.getDiagnostics());
       }
-      throw new IllegalArgumentException(
-          "Invalid type declaration (" + msg + "): " + classSource);
+      throw new IllegalArgumentException("Invalid type declaration (" + msg + "): " + classSource);
     }
 
     CompilationUnitTree cu = parsedCU.getTree();

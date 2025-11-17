@@ -114,7 +114,7 @@ class JavacParseTest {
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(e7), e7);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(e8), e8);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid1), invalid1);
-    assertTrue(JavacParse.parseTypeDeclaration(invalid2).hasParseError());
+    assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid2), invalid2);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid3), invalid3);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid4), invalid4);
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid5), invalid5);
