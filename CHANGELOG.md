@@ -1,6 +1,6 @@
 # javac-parse change log
 
-## 1.0.0 (2025-08-17)
+## 0.9.0 (2025-12-10)
 
 - `JavacParse`:
   - Renamed `parseJavaFile()` to `parseFile();`.
