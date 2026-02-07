@@ -14,6 +14,7 @@ import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +56,7 @@ public final class JavacParse {
     try {
       return parseCompilationUnit(new StringJavaFileObject(javaCode));
     } catch (IOException e) {
-      throw new Error("This can't happen", e);
+      throw new UncheckedIOException("This can't happen", e);
     }
   }
 
@@ -139,7 +140,7 @@ public final class JavacParse {
     // try {
     //   return parseExpression(new StringJavaFileObject(expressionSource));
     // } catch (IOException e) {
-    //   throw new Error("This can't happen", e);
+    //   throw new UncheckedIOException("This can't happen", e);
     // }
 
     String dummySource = "class ParseExpression { Object expression = " + expressionSource + "; }";
@@ -177,7 +178,7 @@ public final class JavacParse {
     try {
       return parseTypeUse(new StringJavaFileObject(classSource));
     } catch (IOException e) {
-      throw new Error("This can't happen", e);
+      throw new UncheckedIOException("This can't happen", e);
     }
   }
 
