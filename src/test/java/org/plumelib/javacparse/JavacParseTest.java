@@ -195,7 +195,7 @@ class JavacParseTest {
 
   @Test
   void memoryTest() {
-    double initialUsedMemory = (double) SystemPlume.usedMemory(true);
+    long initialUsedMemory = (double) SystemPlume.usedMemory(true);
     int numIterations = 10; // Each iteration takes approximately 1 second.
     if (System.getenv("GITHUB_HEAD_REF") != null) {
       // If this line is reached, the program is running in GitHub Actions continuous integration.
@@ -215,8 +215,8 @@ class JavacParseTest {
         System.out.println(msg);
       }
     }
-    double finalUsedMemory = (double) SystemPlume.usedMemory(true);
-    double memoryRatio = finalUsedMemory / initialUsedMemory;
+    long finalUsedMemory = (double) SystemPlume.usedMemory(true);
+    double memoryRatio = (double) finalUsedMemory / (double) initialUsedMemory;
     if (memoryRatio > 1.03) {
       String msg =
           "initial used memory = "
