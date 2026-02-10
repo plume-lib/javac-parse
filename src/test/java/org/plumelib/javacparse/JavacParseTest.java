@@ -215,7 +215,7 @@ class JavacParseTest {
         System.out.println(msg);
       }
     }
-    long finalUsedMemory = (double) SystemPlume.usedMemory(true);
+    long finalUsedMemory = SystemPlume.usedMemory(true);
     double memoryRatio = (double) finalUsedMemory / (double) initialUsedMemory;
     if (memoryRatio > 1.03) {
       String msg =
