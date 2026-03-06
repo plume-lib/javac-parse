@@ -21,7 +21,7 @@ Run these steps on any filesystem, except the `javadocWeb` step.
 * Make and test a snapshot release, see below.
 * git pull
 * Update `CHANGELOG.md`.
-* Update the version number in `gradle.properties`, `README.md`, and
+* Update the version number in `README.md`, `gradle.properties`, and
   this file (possibly multiple times in each).
 * Save files and stage changes.
 * ./gradlew publishToMavenCentral
