@@ -1,5 +1,9 @@
 # javac-parse change log
 
+## 1.0.0 (????-??-??)
+
+- Requires Java 21 to run.
+
 ## 0.9.0 (2025-12-10)
 
 - `JavacParse`:
