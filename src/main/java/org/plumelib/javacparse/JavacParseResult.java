@@ -11,43 +11,11 @@ import org.checkerframework.checker.lock.qual.GuardSatisfied;
  * Represents the result of parsing Java code (a file or a subpart thereof).
  *
  * @param <T> the type of the Java code being parsed
+ * @param tree the parse tree
+ * @param diagnostics the diagnostics
  */
-public final class JavacParseResult<T extends Tree> {
-
-  /** The parse tree. */
-  private final T tree;
-
-  /** The diagnostics. */
-  private final List<Diagnostic<? extends JavaFileObject>> diagnostics;
-
-  /**
-   * Create a JavacParseResult.
-   *
-   * @param tree the parse tree
-   * @param diagnostics the diagnostics
-   */
-  public JavacParseResult(T tree, List<Diagnostic<? extends JavaFileObject>> diagnostics) {
-    this.tree = tree;
-    this.diagnostics = diagnostics;
-  }
-
-  /**
-   * Returns the parse tree.
-   *
-   * @return the parse tree
-   */
-  public T getTree() {
-    return tree;
-  }
-
-  /**
-   * Returns the diagnostics.
-   *
-   * @return the diagnostics
-   */
-  public List<Diagnostic<? extends JavaFileObject>> getDiagnostics() {
-    return diagnostics;
-  }
+public record JavacParseResult<T extends Tree>(
+    T tree, List<Diagnostic<? extends JavaFileObject>> diagnostics) {
 
   /**
    * Returns true if at least one diagnostic is a parse error.

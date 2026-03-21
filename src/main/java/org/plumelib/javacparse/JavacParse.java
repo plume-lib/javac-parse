@@ -72,12 +72,12 @@ public final class JavacParse {
     if (parsedCU.hasParseError()) {
       String msg = parsedCU.getParseErrorMessages();
       if (msg.isEmpty()) {
-        throw new Error("Has parse errors, but empty message: " + parsedCU.getDiagnostics());
+        throw new Error("Has parse errors, but empty message: " + parsedCU.diagnostics());
       }
       throw new IllegalArgumentException("Invalid type declaration (" + msg + "): " + classSource);
     }
 
-    CompilationUnitTree cu = parsedCU.getTree();
+    CompilationUnitTree cu = parsedCU.tree();
 
     if (!cu.getImports().isEmpty()) {
       throw new IllegalArgumentException(
@@ -108,7 +108,7 @@ public final class JavacParse {
 
     Tree decl = decls.get(0);
     if (decl instanceof ClassTree ct) {
-      return new JavacParseResult<>(ct, parsedCU.getDiagnostics());
+      return new JavacParseResult<>(ct, parsedCU.diagnostics());
     } else {
       throw new IllegalArgumentException(
           "source code should be a type declaration but is "
@@ -150,12 +150,12 @@ public final class JavacParse {
     if (cuParse.hasParseError()) {
       String msg = cuParse.getParseErrorMessages();
       if (msg.isEmpty()) {
-        throw new Error("Has parse errors, but empty message: " + cuParse.getDiagnostics());
+        throw new Error("Has parse errors, but empty message: " + cuParse.diagnostics());
       }
       throw new IllegalArgumentException("Invalid expression (" + msg + "): " + expressionSource);
     }
 
-    CompilationUnitTree cu = cuParse.getTree();
+    CompilationUnitTree cu = cuParse.tree();
 
     ClassTree classDecl = (ClassTree) cu.getTypeDecls().get(0);
     List<? extends Tree> members = classDecl.getMembers();
