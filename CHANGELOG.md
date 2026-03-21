@@ -3,6 +3,7 @@
 ## 1.0.0 (????-??-??)
 
 - Requires Java 17 to run.
+- `JavacParseResult` is now a record.
 
 ## 0.9.0 (2025-12-10)
 

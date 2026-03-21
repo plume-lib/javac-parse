@@ -131,9 +131,9 @@ class JavacParseTest {
     assertNoParseError(JavacParse.parseExpression(e7), e7);
     assertNoParseError(JavacParse.parseExpression(e8), e8);
     JavacParseResult<ExpressionTree> e7jpr = JavacParse.parseExpression(e7);
-    assertTrue(e7jpr.getTree() instanceof MemberSelectTree);
+    assertTrue(e7jpr.tree() instanceof MemberSelectTree);
     JavacParseResult<ExpressionTree> e8jpr = JavacParse.parseExpression(e8);
-    assertTrue(e8jpr.getTree() instanceof LiteralTree);
+    assertTrue(e8jpr.tree() instanceof LiteralTree);
 
     assertIllegalArgument(() -> JavacParse.parseExpression(scu1), scu1);
     assertIllegalArgument(() -> JavacParse.parseExpression(scu2), scu2);
@@ -164,7 +164,7 @@ class JavacParseTest {
    */
   void assertNoParseError(JavacParseResult<? extends Tree> jpr, String s) {
     if (jpr.hasParseError()) {
-      throw new Error("Code=" + s + ", diagnostics=" + jpr.getDiagnostics());
+      throw new Error("Code=" + s + ", diagnostics=" + jpr.diagnostics());
     }
   }
 
