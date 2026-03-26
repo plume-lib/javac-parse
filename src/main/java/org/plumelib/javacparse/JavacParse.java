@@ -101,9 +101,8 @@ public final class JavacParse {
     }
     if (decls.size() != 1) {
       throw new IllegalArgumentException(
-          String.format(
-              "Type declaration source code has %d top-level forms, not 1: %s",
-              decls.size(), classSource));
+          "Type declaration source code has %d top-level forms, not 1: %s"
+              .formatted(decls.size(), classSource));
     }
 
     Tree decl = decls.get(0);

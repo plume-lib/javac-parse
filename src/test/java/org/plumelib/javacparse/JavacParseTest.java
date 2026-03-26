@@ -23,11 +23,17 @@ class JavacParseTest {
 
     // Import and package
     String si1 = "package x.y.z;\n";
-    String si2 = "import a.b.C.d;\nimport x.y.Z;\n";
+    String si2 =
+        """
+        import a.b.C.d;
+        import x.y.Z;
+        """;
 
     // Compilation unit.
     String scu1 =
-        "class MyClass { void m() {} } \nclass OtherClass { String f = \"hello world\"; }";
+        """
+        class MyClass { void m() {} }\s
+        class OtherClass { String f = "hello world"; }""";
     String scu2 = si1 + scu1;
     String scu3 = si2 + scu1;
     String scu4 = si1 + si2 + scu1;

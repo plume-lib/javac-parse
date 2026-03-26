@@ -1,6 +1,5 @@
 package org.plumelib.javacparse;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -22,14 +21,14 @@ class FileJavaFileObject extends SimpleJavaFileObject {
    */
   public FileJavaFileObject(String filename) throws IOException {
     super(Path.of(filename).toUri(), JavaFileObject.Kind.SOURCE);
-    File file = new File(filename);
-    if (!file.exists()) {
+    Path path = Path.of(filename);
+    if (!Files.exists(path)) {
       throw new IOException("file does not exist: " + filename);
     }
-    if (!file.canRead()) {
+    if (!Files.isReadable(path)) {
       throw new IOException("cannot read file: " + filename);
     }
-    javaCode = new String(Files.readAllBytes(Path.of(filename)), Charset.defaultCharset());
+    javaCode = Files.readString(path, Charset.defaultCharset());
   }
 
   /**
