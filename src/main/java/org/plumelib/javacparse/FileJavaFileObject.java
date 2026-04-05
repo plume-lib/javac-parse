@@ -11,7 +11,7 @@ import javax.tools.SimpleJavaFileObject;
 class FileJavaFileObject extends SimpleJavaFileObject {
 
   /** The contents of the file. */
-  private String javaCode;
+  private final String javaCode;
 
   /**
    * Creates a FileJavaFileObject for the given file.
@@ -21,14 +21,7 @@ class FileJavaFileObject extends SimpleJavaFileObject {
    */
   public FileJavaFileObject(String filename) throws IOException {
     super(Path.of(filename).toUri(), JavaFileObject.Kind.SOURCE);
-    Path path = Path.of(filename);
-    if (!Files.exists(path)) {
-      throw new IOException("file does not exist: " + filename);
-    }
-    if (!Files.isReadable(path)) {
-      throw new IOException("cannot read file: " + filename);
-    }
-    javaCode = Files.readString(path, Charset.defaultCharset());
+    javaCode = Files.readString(Path.of(filename), Charset.defaultCharset());
   }
 
   /**
