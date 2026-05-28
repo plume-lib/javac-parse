@@ -1,7 +1,7 @@
 package org.plumelib.javacparse;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.tools.JavaFileObject;
@@ -24,14 +24,14 @@ class FileJavaFileObject extends SimpleJavaFileObject {
   }
 
   /**
-   * Creates a StringJavaFileObject for the given path.
+   * Creates a FileJavaFileObject for the given path.
    *
    * @param pathname the path name of a Java source file
    * @throws IOException if there is trouble reading the file
    */
   public FileJavaFileObject(Path pathname) throws IOException {
     super(pathname.toUri(), JavaFileObject.Kind.SOURCE);
-    javaCode = Files.readString(pathname, Charset.defaultCharset());
+    javaCode = Files.readString(pathname, StandardCharsets.UTF_8);
   }
 
   @Override
