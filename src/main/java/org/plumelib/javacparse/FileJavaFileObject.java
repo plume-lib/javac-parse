@@ -20,8 +20,7 @@ class FileJavaFileObject extends SimpleJavaFileObject {
    * @throws IOException if there is trouble reading the file
    */
   public FileJavaFileObject(String filename) throws IOException {
-    super(Path.of(filename).toUri(), JavaFileObject.Kind.SOURCE);
-    javaCode = Files.readString(Path.of(filename), Charset.defaultCharset());
+    this(Path.of(filename));
   }
 
   /**
@@ -31,7 +30,8 @@ class FileJavaFileObject extends SimpleJavaFileObject {
    * @throws IOException if there is trouble reading the file
    */
   public FileJavaFileObject(Path pathname) throws IOException {
-    this(pathname.toString());
+    super(pathname.toUri(), JavaFileObject.Kind.SOURCE);
+    javaCode = Files.readString(pathname, Charset.defaultCharset());
   }
 
   @Override

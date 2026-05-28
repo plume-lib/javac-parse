@@ -100,10 +100,11 @@ public final class JavacParse {
             "Type declaration source code contains a top-level `;`: " + classSource);
       }
     }
-    if (decls.size() != 1) {
+    int numDecls = decls.size();
+    if (numDecls != 1) {
       throw new IllegalArgumentException(
           "Type declaration source code has %d top-level forms, not 1: %s"
-              .formatted(decls.size(), classSource));
+              .formatted(numDecls, classSource));
     }
 
     Tree decl = decls.get(0);
