@@ -8,7 +8,7 @@
 ## 0.9.0 (2025-12-10)
 
 - `JavacParse`:
-  - Renamed `parseJavaFile()` to `parseFile();`.
+  - Renamed `parseJavaFile()` to `parseFile()`.
   - Renamed `parseJavaCode()` to `parseCompilationUnit()`.
   - Renamed `parseJavaFileObject()` to `parseCompilationUnit()`.
   - New method `parseTypeDeclaration()`.
