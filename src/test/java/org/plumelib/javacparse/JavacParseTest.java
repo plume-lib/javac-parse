@@ -162,6 +162,38 @@ class JavacParseTest {
     assertIllegalArgument(() -> JavacParse.parseExpression(invalid7), invalid7);
   }
 
+  @Test
+  void parseTypeUseTest() {
+    // Valid type uses parse without error.
+    String[] validTypeUses = {
+      "int",
+      "String",
+      "java.lang.String",
+      "List<String>",
+      "List<? extends Number>",
+      "int[]",
+      "String[][]",
+    };
+    for (String t : validTypeUses) {
+      assertNoParseError(JavacParse.parseTypeUse(t), t);
+    }
+    assertTrue(JavacParse.parseTypeUse("java.lang.String").tree() instanceof MemberSelectTree);
+
+    // These are not (whole) type uses. In particular, a type use followed by trailing text is
+    // invalid: parseTypeUse must not silently parse only the prefix.
+    String[] invalidTypeUses = {
+      "",
+      "1 + 2",
+      "Foo bar baz",
+      "java.lang.String extra nonsense",
+      "int x; int",
+      "class MyClass {}",
+    };
+    for (String t : invalidTypeUses) {
+      assertIllegalArgument(() -> JavacParse.parseTypeUse(t), t);
+    }
+  }
+
   /**
    * Throws an error if the parse result has a parse error.
    *
