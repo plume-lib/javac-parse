@@ -33,7 +33,8 @@ class JavacParseTest {
     String scu1 =
         """
         class MyClass { void m() {} }\s
-        class OtherClass { String f = "hello world"; }""";
+        class OtherClass { String f = "hello world"; }\
+        """;
     String scu2 = si1 + scu1;
     String scu3 = si2 + scu1;
     String scu4 = si1 + si2 + scu1;
@@ -196,7 +197,7 @@ class JavacParseTest {
     try {
       JavacParse.parseTypeUse("int x; } class Evil { int");
       throw new Error("parseTypeUse should have failed");
-    } catch (IllegalArgumentException) {
+    } catch (IllegalArgumentException e) {
       // expected
     }
   }
