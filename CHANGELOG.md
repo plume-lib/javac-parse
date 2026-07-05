@@ -4,6 +4,9 @@
 
 - Requires Java 17 to run.
 - `JavacParseResult` is now a record.
+- `parseTypeUse(String)` no longer silently parses only a prefix of its argument; a string that is
+  not entirely a type use now throws `IllegalArgumentException`.
+- Deprecated `parseTypeUse(JavaFileObject)`, which may parse only a prefix of its argument.
 
 ## 0.9.0 (2025-12-10)
 

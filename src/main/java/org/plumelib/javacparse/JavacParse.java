@@ -170,17 +170,47 @@ public final class JavacParse {
   }
 
   /**
-   * Parses the given Java type use.
+   * Parses the given Java type use, such as "int", "String", or "List&lt;? extends Number&gt;".
    *
-   * @param classSource the string representation of a Java type use
+   * @param typeSource the string representation of a Java type use
    * @return the parsed type use
    */
-  public static JavacParseResult<ExpressionTree> parseTypeUse(String classSource) {
-    try {
-      return parseTypeUse(new StringJavaFileObject(classSource));
-    } catch (IOException e) {
-      throw new UncheckedIOException("This can't happen", e);
+  public static JavacParseResult<ExpressionTree> parseTypeUse(String typeSource) {
+    // Parsing the type use directly (via `JavacParser::parseType`) may parse a prefix rather than
+    // the entire string; see the deprecated `parseTypeUse(JavaFileObject)`. Instead, embed the type
+    // use in a field declaration so that trailing text causes a parse error.
+    String dummySource = "class ParseTypeUse { " + typeSource + " parseTypeUseField; }";
+
+    JavacParseResult<CompilationUnitTree> cuParse = parseCompilationUnit(dummySource);
+
+    if (cuParse.hasParseError()) {
+      String msg = cuParse.getParseErrorMessages();
+      if (msg.isEmpty()) {
+        throw new Error("Has parse errors, but empty message: " + cuParse.diagnostics());
+      }
+      throw new IllegalArgumentException("Invalid type use (" + msg + "): " + typeSource);
     }
+
+    CompilationUnitTree cu = cuParse.tree();
+
+    if (cu.getTypeDecls().size() != 1) {
+      // This was an injection attack.
+      throw new IllegalArgumentException("Invalid type use: " + typeSource);
+    }
+
+    ClassTree classDecl = (ClassTree) cu.getTypeDecls().get(0);
+    List<? extends Tree> members = classDecl.getMembers();
+    if (members.size() != 1) {
+      // This was an injection attack, such as "int x; int".
+      throw new IllegalArgumentException("Invalid type use: " + typeSource);
+    }
+
+    Tree member = members.get(0);
+    if (!(member instanceof VariableTree vt)) {
+      throw new IllegalArgumentException("Invalid type use: " + typeSource);
+    }
+    ExpressionTree type = (ExpressionTree) vt.getType();
+    return new JavacParseResult<>(type, Collections.emptyList());
   }
 
   // ///////////////////////////////////////////////////////////////////////////
@@ -231,10 +261,17 @@ public final class JavacParse {
   /**
    * Parse a type use.
    *
+   * <p><b>Warning:</b> If the prefix of the string is a Java type, this may return the result of
+   * parsing that prefix, even if the whole string is not a type. For example, it parses "Foo bar
+   * baz" without error as the type "Foo". Therefore, this routine is not appropriate for most uses;
+   * prefer {@link #parseTypeUse(String)}.
+   *
    * @param source a JavaFileObject
    * @return a (parsed) type use, possibly an ErroneousTree
    * @throws IOException if there is trouble reading the file
+   * @deprecated may parse a prefix rather than the whole string
    */
+  @Deprecated // not for removal
   public static JavacParseResult<ExpressionTree> parseTypeUse(JavaFileObject source)
       throws IOException {
     return parseWith(source, JavacParser::parseType);
