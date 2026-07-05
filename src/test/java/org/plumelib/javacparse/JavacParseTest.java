@@ -192,6 +192,13 @@ class JavacParseTest {
     for (String t : invalidTypeUses) {
       assertIllegalArgument(() -> JavacParse.parseTypeUse(t), t);
     }
+
+    try {
+      JavacParse.parseTypeUse("int x; } class Evil { int");
+      throw new Error("parseTypeUse should have failed");
+    } catch (IllegalArgumentException) {
+      // expected
+    }
   }
 
   /**

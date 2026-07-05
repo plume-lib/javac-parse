@@ -193,6 +193,11 @@ public final class JavacParse {
 
     CompilationUnitTree cu = cuParse.tree();
 
+    if (cu.getTypeDecls().size() != 1) {
+      // This was an injection attack.
+      throw new IllegalArgumentException("Invalid type use: " + typeSource);
+    }
+
     ClassTree classDecl = (ClassTree) cu.getTypeDecls().get(0);
     List<? extends Tree> members = classDecl.getMembers();
     if (members.size() != 1) {
