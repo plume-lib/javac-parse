@@ -65,8 +65,8 @@ public final class JavacParse {
    *
    * @param classSource the string representation of a Java type declaration
    * @return the parsed type declaration
-   * @throws IllegalArgumentException if the source contains imports, modules, or a package
-   *     declaration
+   * @throws IllegalArgumentException if the source is not parsable as a type declaration or
+   *     contains a top-level ";"
    */
   public static JavacParseResult<ClassTree> parseTypeDeclaration(String classSource) {
     JavacParseResult<CompilationUnitTree> parsedCU = parseCompilationUnit(classSource);
@@ -159,10 +159,10 @@ public final class JavacParse {
     try {
       member = parseTypeMember(methodSource);
     } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException("Invalid expression: " + methodSource);
+      throw new IllegalArgumentException("Invalid method: " + methodSource);
     }
     if (!(member instanceof MethodTree mt)) {
-      throw new IllegalArgumentException("Invalid expression: " + methodSource);
+      throw new IllegalArgumentException("Invalid method: " + methodSource);
     }
     return mt;
   }

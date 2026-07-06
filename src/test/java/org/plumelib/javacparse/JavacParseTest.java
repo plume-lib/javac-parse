@@ -136,8 +136,6 @@ class JavacParseTest {
     JavacParse.parseExpression(e4);
     JavacParse.parseExpression(e5);
     JavacParse.parseExpression(e6);
-    JavacParse.parseExpression(e7);
-    JavacParse.parseExpression(e8);
     ExpressionTree e7tree = JavacParse.parseExpression(e7);
     assertTrue(e7tree instanceof MemberSelectTree);
     ExpressionTree e8tree = JavacParse.parseExpression(e8);
@@ -175,6 +173,9 @@ class JavacParseTest {
       "List<? extends Number>",
       "int[]",
       "String[][]",
+      "@NonNegative Integer",
+      "@NonNegative @Positive Integer",
+      "List<? extends @Positive Number>",
     };
     for (String t : validTypeUses) {
       JavacParse.parseTypeUse(t);
@@ -195,12 +196,7 @@ class JavacParseTest {
       assertIllegalArgument(() -> JavacParse.parseTypeUse(t), t);
     }
 
-    try {
-      JavacParse.parseTypeUse("int x; } class Evil { int");
-      throw new Error("parseTypeUse should have failed");
-    } catch (IllegalArgumentException e) {
-      // expected
-    }
+    assertIllegalArgument(() -> JavacParse.parseTypeUse("int x; } class Evil { int"));
   }
 
   /**
