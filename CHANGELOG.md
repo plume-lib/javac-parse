@@ -8,6 +8,11 @@
   not entirely a type use now throws `IllegalArgumentException`.
 - Deprecated `parseTypeUse(JavaFileObject)`, which may parse only a prefix of its argument.
 
+## 0.10.0 (????-??-??)
+
+- New method `parseMethod()`.
+- Simplified the type of most `parse*()` methods, which now return a tree or throw an exception.
+
 ## 0.9.0 (2025-12-10)
 
 - `JavacParse`:

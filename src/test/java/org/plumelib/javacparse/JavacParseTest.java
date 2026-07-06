@@ -129,18 +129,19 @@ class JavacParseTest {
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid7), invalid7);
 
     // Expression
-    assertNoParseError(JavacParse.parseExpression(e1), e1);
-    assertNoParseError(JavacParse.parseExpression(e2), e2);
-    assertNoParseError(JavacParse.parseExpression(e3), e3);
-    assertNoParseError(JavacParse.parseExpression(e4), e4);
-    assertNoParseError(JavacParse.parseExpression(e5), e5);
-    assertNoParseError(JavacParse.parseExpression(e6), e6);
-    assertNoParseError(JavacParse.parseExpression(e7), e7);
-    assertNoParseError(JavacParse.parseExpression(e8), e8);
-    JavacParseResult<ExpressionTree> e7jpr = JavacParse.parseExpression(e7);
-    assertTrue(e7jpr.tree() instanceof MemberSelectTree);
-    JavacParseResult<ExpressionTree> e8jpr = JavacParse.parseExpression(e8);
-    assertTrue(e8jpr.tree() instanceof LiteralTree);
+    // These calls throw an exception if there is a parse error.
+    JavacParse.parseExpression(e1);
+    JavacParse.parseExpression(e2);
+    JavacParse.parseExpression(e3);
+    JavacParse.parseExpression(e4);
+    JavacParse.parseExpression(e5);
+    JavacParse.parseExpression(e6);
+    JavacParse.parseExpression(e7);
+    JavacParse.parseExpression(e8);
+    ExpressionTree e7tree = JavacParse.parseExpression(e7);
+    assertTrue(e7tree instanceof MemberSelectTree);
+    ExpressionTree e8tree = JavacParse.parseExpression(e8);
+    assertTrue(e8tree instanceof LiteralTree);
 
     assertIllegalArgument(() -> JavacParse.parseExpression(scu1), scu1);
     assertIllegalArgument(() -> JavacParse.parseExpression(scu2), scu2);
@@ -176,9 +177,9 @@ class JavacParseTest {
       "String[][]",
     };
     for (String t : validTypeUses) {
-      assertNoParseError(JavacParse.parseTypeUse(t), t);
+      JavacParse.parseTypeUse(t);
     }
-    assertTrue(JavacParse.parseTypeUse("java.lang.String").tree() instanceof MemberSelectTree);
+    assertTrue(JavacParse.parseTypeUse("java.lang.String") instanceof MemberSelectTree);
 
     // These are not (whole) type uses. In particular, a type use followed by trailing text is
     // invalid: parseTypeUse must not silently parse only the prefix.
