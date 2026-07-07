@@ -196,7 +196,8 @@ class JavacParseTest {
       assertIllegalArgument(() -> JavacParse.parseTypeUse(t), t);
     }
 
-    assertIllegalArgument(() -> JavacParse.parseTypeUse("int x; } class Evil { int"));
+    String evil = "int x; } class Evil { int";
+    assertIllegalArgument(() -> JavacParse.parseTypeUse(evil), evil);
   }
 
   /**
