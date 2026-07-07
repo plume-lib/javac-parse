@@ -16,7 +16,6 @@ import com.sun.tools.javac.util.Log;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import javax.tools.DiagnosticCollector;
@@ -66,6 +65,8 @@ public final class JavacParse {
    *
    * @param classSource the string representation of a Java type declaration
    * @return the parsed type declaration
+   * @throws IllegalArgumentException if the source is not parsable as a type declaration or
+   *     contains a top-level ";"
    */
   public static JavacParseResult<ClassTree> parseTypeDeclaration(String classSource) {
     JavacParseResult<CompilationUnitTree> parsedCU = parseCompilationUnit(classSource);
@@ -120,14 +121,50 @@ public final class JavacParse {
   }
 
   /**
+   * Parses a member of a type declaration.
+   *
+   * @param memberSource the string representation of a Java method, field, static initializer,
+   *     class, etc.
+   * @return the parsed type member
+   * @throws IllegalArgumentException if the member source does not parse
+   */
+  private static Tree parseTypeMember(String memberSource) {
+    String dummySource = "class ParseExpression { " + memberSource + "; }";
+
+    JavacParseResult<ClassTree> parsedTypeDecl = parseTypeDeclaration(dummySource);
+    if (parsedTypeDecl.hasParseError()) {
+      throw new IllegalArgumentException("Invalid type member: " + memberSource);
+    }
+    ClassTree typeDecl = parsedTypeDecl.tree();
+
+    List<? extends Tree> members = typeDecl.getMembers();
+    if (members.size() != 1) {
+      // This was an injection attack, such as "0; int x = 1".
+      throw new IllegalArgumentException("Invalid type member: " + memberSource);
+    }
+
+    return members.get(0);
+  }
+
+  /**
    * Parses the given Java method or annotation type element.
    *
    * @param methodSource the string representation of a Java method or annotation type element
    * @return the parsed method
+   * @throws IllegalArgumentException if the member source does not parse
    */
-  public static JavacParseResult<MethodTree> parseMethod(String methodSource) {
-    // TODO
-    throw new Error("to implement");
+  @SuppressWarnings("PMD.AvoidThrowingNewInstanceOfSameException") // bug in PMD
+  public static MethodTree parseMethod(String methodSource) {
+    Tree member;
+    try {
+      member = parseTypeMember(methodSource);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Invalid method: " + methodSource);
+    }
+    if (!(member instanceof MethodTree mt)) {
+      throw new IllegalArgumentException("Invalid method: " + methodSource);
+    }
+    return mt;
   }
 
   /**
@@ -135,38 +172,23 @@ public final class JavacParse {
    *
    * @param expressionSource the string representation of a Java expression
    * @return the parsed expression
+   * @throws IllegalArgumentException if the member source does not parse
    */
-  public static JavacParseResult<ExpressionTree> parseExpression(String expressionSource) {
-    // This version may parse a prefix rather than the entire expression.
-    // try {
-    //   return parseExpression(new StringJavaFileObject(expressionSource));
-    // } catch (IOException e) {
-    //   throw new UncheckedIOException("This can't happen", e);
-    // }
+  @SuppressWarnings("PMD.AvoidThrowingNewInstanceOfSameException") // bug in PMD
+  public static ExpressionTree parseExpression(String expressionSource) {
+    String dummySource = "Object expression = " + expressionSource + ";";
 
-    String dummySource = "class ParseExpression { Object expression = " + expressionSource + "; }";
-
-    JavacParseResult<CompilationUnitTree> cuParse = parseCompilationUnit(dummySource);
-
-    if (cuParse.hasParseError()) {
-      String msg = cuParse.getParseErrorMessages();
-      if (msg.isEmpty()) {
-        throw new Error("Has parse errors, but empty message: " + cuParse.diagnostics());
-      }
-      throw new IllegalArgumentException("Invalid expression (" + msg + "): " + expressionSource);
-    }
-
-    CompilationUnitTree cu = cuParse.tree();
-
-    ClassTree classDecl = (ClassTree) cu.getTypeDecls().get(0);
-    List<? extends Tree> members = classDecl.getMembers();
-    if (members.size() != 1) {
-      // This was an injection attack, such as "0; int x = 1".
+    Tree member;
+    try {
+      member = parseTypeMember(dummySource);
+    } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException("Invalid expression: " + expressionSource);
     }
-
-    ExpressionTree expr = ((VariableTree) members.get(0)).getInitializer();
-    return new JavacParseResult<>(expr, Collections.emptyList());
+    if (!(member instanceof VariableTree vt)) {
+      throw new IllegalArgumentException("Invalid expression: " + expressionSource);
+    }
+    ExpressionTree expr = vt.getInitializer();
+    return expr;
   }
 
   /**
@@ -174,48 +196,31 @@ public final class JavacParse {
    *
    * @param typeSource the string representation of a Java type use
    * @return the parsed type use
+   * @throws IllegalArgumentException if the member source does not parse
    */
-  public static JavacParseResult<ExpressionTree> parseTypeUse(String typeSource) {
-    // Parsing the type use directly (via `JavacParser::parseType`) may parse a prefix rather than
-    // the entire string; see the deprecated `parseTypeUse(JavaFileObject)`. Instead, embed the type
-    // use in a field declaration so that trailing text causes a parse error.
-    String dummySource = "class ParseTypeUse { " + typeSource + " parseTypeUseField; }";
+  @SuppressWarnings("PMD.AvoidThrowingNewInstanceOfSameException") // bug in PMD
+  public static Tree parseTypeUse(String typeSource) {
+    String dummySource = typeSource + " fieldName;";
 
-    JavacParseResult<CompilationUnitTree> cuParse = parseCompilationUnit(dummySource);
-
-    if (cuParse.hasParseError()) {
-      String msg = cuParse.getParseErrorMessages();
-      if (msg.isEmpty()) {
-        throw new Error("Has parse errors, but empty message: " + cuParse.diagnostics());
-      }
-      throw new IllegalArgumentException("Invalid type use (" + msg + "): " + typeSource);
-    }
-
-    CompilationUnitTree cu = cuParse.tree();
-
-    if (cu.getTypeDecls().size() != 1) {
-      // This was an injection attack.
+    Tree member;
+    try {
+      member = parseTypeMember(dummySource);
+    } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException("Invalid type use: " + typeSource);
     }
-
-    ClassTree classDecl = (ClassTree) cu.getTypeDecls().get(0);
-    List<? extends Tree> members = classDecl.getMembers();
-    if (members.size() != 1) {
-      // This was an injection attack, such as "int x; int".
-      throw new IllegalArgumentException("Invalid type use: " + typeSource);
-    }
-
-    Tree member = members.get(0);
     if (!(member instanceof VariableTree vt)) {
       throw new IllegalArgumentException("Invalid type use: " + typeSource);
     }
-    ExpressionTree type = (ExpressionTree) vt.getType();
-    return new JavacParseResult<>(type, Collections.emptyList());
+    Tree type = vt.getType();
+    return type;
   }
 
   // ///////////////////////////////////////////////////////////////////////////
-  // Low-level routines
+  // Low-level routines that take a JavaFileObject instead of a String
   //
+
+  // These routines have the downside that they may parse a prefix of the JavaFileObject rather than
+  // the whole thing.
 
   // Implementation notes:
   // 1. The documentation of Context says "a single Context is used for each invocation of the
@@ -231,6 +236,7 @@ public final class JavacParse {
    * @return a (parsed) compilation unit, which may include parse errors
    * @throws IOException if there is trouble reading the file
    */
+  // TODO: Document whether this can parse just a prefix of the JavaFileObject.
   public static JavacParseResult<CompilationUnitTree> parseCompilationUnit(JavaFileObject source)
       throws IOException {
     JavacParseResult<CompilationUnitTree> result =
