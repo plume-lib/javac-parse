@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.StringJoiner;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
-import org.plumelib.util.SystemPlume;
+import org.plumelib.util.SystemP;
 
 class JavacParseTest {
   @Test
@@ -239,7 +239,7 @@ class JavacParseTest {
 
   @Test
   void memoryTest() {
-    long initialUsedMemory = SystemPlume.usedMemory(true);
+    long initialUsedMemory = SystemP.usedMemory(true);
     int numIterations = 10; // Each iteration takes approximately 1 second.
     if (System.getenv("GITHUB_HEAD_REF") != null) {
       // If this line is reached, the program is running in GitHub Actions continuous integration.
@@ -254,12 +254,12 @@ class JavacParseTest {
         }
         JavacParse.parseCompilationUnit(sj.toString());
       }
-      String msg = SystemPlume.gcUsageMessage(.3, 10);
+      String msg = SystemP.gcUsageMessage(.3, 10);
       if (msg != null) {
         System.out.println(msg);
       }
     }
-    long finalUsedMemory = SystemPlume.usedMemory(true);
+    long finalUsedMemory = SystemP.usedMemory(true);
     double memoryRatio = (double) finalUsedMemory / (double) initialUsedMemory;
     if (memoryRatio > 1.03) {
       String msg =
