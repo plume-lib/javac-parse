@@ -129,7 +129,7 @@ public final class JavacParse {
    * @throws IllegalArgumentException if the member source does not parse
    */
   private static Tree parseTypeMember(String memberSource) {
-    String dummySource = "class ParseExpression { " + memberSource + "; }";
+    String dummySource = "class DummyClass { " + memberSource + "; }";
 
     JavacParseResult<ClassTree> parsedTypeDecl = parseTypeDeclaration(dummySource);
     if (parsedTypeDecl.hasParseError()) {
