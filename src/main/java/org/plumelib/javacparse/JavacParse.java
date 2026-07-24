@@ -129,7 +129,7 @@ public final class JavacParse {
    * @throws IllegalArgumentException if the member source does not parse
    */
   private static Tree parseTypeMember(String memberSource) {
-    String dummySource = "class ParseExpression { " + memberSource + "; }";
+    String dummySource = "class DummyClass { " + memberSource + "; }";
 
     JavacParseResult<ClassTree> parsedTypeDecl = parseTypeDeclaration(dummySource);
     if (parsedTypeDecl.hasParseError()) {
@@ -151,7 +151,7 @@ public final class JavacParse {
    *
    * @param methodSource the string representation of a Java method or annotation type element
    * @return the parsed method
-   * @throws IllegalArgumentException if the member source does not parse
+   * @throws IllegalArgumentException if the method source does not parse
    */
   @SuppressWarnings("PMD.AvoidThrowingNewInstanceOfSameException") // bug in PMD
   public static MethodTree parseMethod(String methodSource) {
@@ -172,7 +172,7 @@ public final class JavacParse {
    *
    * @param expressionSource the string representation of a Java expression
    * @return the parsed expression
-   * @throws IllegalArgumentException if the member source does not parse
+   * @throws IllegalArgumentException if the expression source does not parse
    */
   @SuppressWarnings("PMD.AvoidThrowingNewInstanceOfSameException") // bug in PMD
   public static ExpressionTree parseExpression(String expressionSource) {
@@ -196,7 +196,7 @@ public final class JavacParse {
    *
    * @param typeSource the string representation of a Java type use
    * @return the parsed type use
-   * @throws IllegalArgumentException if the member source does not parse
+   * @throws IllegalArgumentException if the type source does not parse
    */
   @SuppressWarnings("PMD.AvoidThrowingNewInstanceOfSameException") // bug in PMD
   public static Tree parseTypeUse(String typeSource) {

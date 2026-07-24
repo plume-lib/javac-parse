@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.LiteralTree;
 import com.sun.source.tree.MemberSelectTree;
+import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
 import java.io.IOException;
 import java.util.StringJoiner;
@@ -198,6 +199,36 @@ class JavacParseTest {
 
     String evil = "int x; } class Evil { int";
     assertIllegalArgument(() -> JavacParse.parseTypeUse(evil), evil);
+  }
+
+  @Test
+  void parseMethodTest() {
+    // Valid methods (and annotation type elements) parse without error.
+    String[] validMethods = {
+      "void m() {}",
+      "int add(int a, int b) { return a + b; }",
+      "public static <T> T identity(T x) { return x; }",
+      "abstract void foo();",
+      "String value();",
+    };
+    for (String m : validMethods) {
+      JavacParse.parseMethod(m);
+    }
+    MethodTree mt = JavacParse.parseMethod("int add(int a, int b) { return a + b; }");
+    assertTrue(mt.getName().contentEquals("add"));
+
+    // These are not (whole, single) methods.
+    String[] invalidMethods = {
+      "", // no member at all
+      "int x = 5", // a field, not a method
+      "1 + 2", // an expression, not a method
+      "class Nested {}", // a type declaration, not a method
+      "void m() {", // unbalanced braces
+      "void a() {} void b() {}", // two methods, not one
+    };
+    for (String m : invalidMethods) {
+      assertIllegalArgument(() -> JavacParse.parseMethod(m), m);
+    }
   }
 
   /**
