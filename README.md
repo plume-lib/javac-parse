@@ -29,11 +29,11 @@ In a Gradle buildfile, write
 
 ```gradle
 dependencies {
-  implementation("org.plumelib:javac-parse:0.9.0")
+  implementation("org.plumelib:javac-parse:1.0.0")
 }
 ```
 
-Other build systems are [similar](https://search.maven.org/artifact/org.plumelib/javac-parse/0.9.0/jar).
+Other build systems are [similar](https://search.maven.org/artifact/org.plumelib/javac-parse/1.0.0/jar).
 
 You will need to add something like this to your buildfile (Gradle example):
 

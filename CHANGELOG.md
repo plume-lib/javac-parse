@@ -1,12 +1,9 @@
 # javac-parse change log
 
-## 1.0.0 (????-??-??)
+## 1.0.0 (2026-08-05)
 
 - Requires Java 17 to run.
 - `JavacParseResult` is now a record.
-
-## 0.10.0 (????-??-??)
-
 - New method `parseMethod()`.
 - Simplified the type of most `parse*()` methods, which now return a tree
   or throw an exception.

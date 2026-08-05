@@ -19,38 +19,37 @@ mavenCentralPassword=...
 Run these steps on any filesystem, except the `javadocWeb` step.
 
 * Make and test a snapshot release, see below.
-* git pull
+* `git pull`
 * Update `CHANGELOG.md`.
 * Update the version number in `README.md`, `gradle.properties`, and
   this file (possibly multiple times in each).
 * Save files and stage changes.
-* ./gradlew publishToMavenCentral
-* Browse to <https://central.sonatype.com/publishing/deployments>, click "publish".
+* `./gradlew publishToMavenCentral`
+* Browse to <https://central.sonatype.com/publishing/deployments>, click “publish”.
 * Add a git tag and commit:
 
   ```sh
-  VER=0.9.0 && \
+  VER=1.0.0 && \
   git commit -m "Version $VER" && git push && \
   git tag -a v$VER -m "Version $VER" && git push && git push --tags
   ```
 
 * Make a GitHub release.
-  * Browse to <https://github.com/plume-lib/javac-parse/releases>
-  * Click "draft a new release"
-  * Call it "javac-parse 0.9.0"
+  * Browse to <https://github.com/plume-lib/javac-parse/releases/new>
+  * Call it "javac-parse 1.0.0"
   * Use the text from `CHANGELOG.md` as the description
   * Attach the .jar and -all.jar files from `build/libs/`
-  * Click "publish release"
-* Finally, run on the CSE filesystem:  git pull && ./gradlew javadocWeb
+  * Click “publish release”
+* Finally, run on the CSE filesystem:  `git pull && ./gradlew javadocWeb`
 * Update clients and test, so that if it's broken we can re-release.
 
 ### Making a snapshot release
 
-* git pull
-* Set version number in `gradle.properties` to end in "-SNAPSHOT".
+* `git pull`
+* Set version number in `gradle.properties` to end in “-SNAPSHOT”.
 * Make the snapshot release.
   * Approach 1:  to Maven Central
-    * ./gradlew publishToMavenCentral
+    * `./gradlew publishToMavenCentral`
     * In the clients' build.gradle: set version number and use:
 
        ```gradle
@@ -62,7 +61,7 @@ Run these steps on any filesystem, except the `javadocWeb` step.
        ```
 
   * Approach 2:  to Maven Local
-    * ./gradlew publishToMavenLocal
+    * `./gradlew publishToMavenLocal`
     * In the clients' build.gradle: set version number and use:
 
        ```gradle
@@ -71,7 +70,7 @@ Run these steps on any filesystem, except the `javadocWeb` step.
        }
        ```
 
-* Test the test snapshot release on some clients:
+* Test the snapshot release on some clients:
   * For the Checker Framework (don't skip running the tests):
 
     ```sh
@@ -83,4 +82,4 @@ Run these steps on any filesystem, except the `javadocWeb` step.
     checker/bin-devel/test-plume-lib.sh
     ```
 
-  * For Daikon: make compile junit test
+  * For Daikon: `make compile junit test`
