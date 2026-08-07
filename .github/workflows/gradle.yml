@@ -75,15 +75,15 @@ jobs:
           # saves a partial cache can tell this failure from every other way this job can fail.
           echo "p2-failure=true" >> "$GITHUB_OUTPUT"
           exit 1
-      # A lock file that this job leaves in the cache directory would be restored onto a fresh
-      # machine, where the PID it names is likely to belong to a live but unrelated process, so
-      # build.gradle's "deleteStaleSpotlessP2Lock" task would keep it and every build that used the
-      # entry would wait out the lock timeout.  Removing the lock file before saving is certain,
-      # unlike judging a PID that came from another machine.  The glob also matches the
-      # ".lock.stale-*" file that that task leaves behind if it is killed while deleting a lock file.
+      # Solstice, which provisions the cache for Spotless, guards the directory with a lock file
+      # that holds the owning process's PID, and it never checks whether that process still exists.
+      # A lock file that this job leaves behind would be saved into the cache entry and restored
+      # onto every later machine, where no process holds it; each such run would wait out the lock
+      # timeout and then fail with "Failed to provision P2 dependencies".  Removing the lock file
+      # before saving keeps the entry usable.
       - name: Remove the Spotless P2 lock file
         if: always()
-        run: rm -f ~/.gradle/spotless-p2/metadata/.lock*
+        run: rm -f ~/.gradle/spotless-p2/metadata/.lock
       # A cache that a successful run saves is complete, so later runs can use it without any
       # network access.  Saving is skipped after an exact cache hit, because a cache entry that
       # exists cannot be overwritten.
