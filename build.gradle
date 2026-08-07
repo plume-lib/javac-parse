@@ -173,6 +173,11 @@ def spotlessP2CacheDir = new File(gradle.gradleUserHomeDir, "spotless-p2")
 // This is a static method of a class rather than a method of the build script, because the
 // configuration cache nulls out a closure's owner when it serializes the closure.
 class SpotlessP2 {
+
+  // How old a lock file that holds no PID must be before it is treated as abandoned rather than as
+  // one whose owner has not yet written its PID.
+  private static final long EMPTY_LOCK_FILE_GRACE_MILLIS = 60000
+
   static void deleteStaleLockFile(File cacheDirectory, Logger logger) {
     File lockFile = new File(new File(cacheDirectory, "metadata"), ".lock")
     if (!lockFile.isFile()) {
@@ -182,7 +187,15 @@ class SpotlessP2 {
     try {
       pid = Long.parseLong(lockFile.getText("UTF-8").trim())
     } catch (NumberFormatException e) {
-      // The lock file holds no PID yet, so its owner is midway through creating it and is alive.
+      // Solstice creates the lock file and then writes its PID into it, so a lock file that holds
+      // no PID usually belongs to a live process that is between those two steps.  A process that
+      // is killed between them leaves the file empty forever, and Solstice parses the file outside
+      // the "try" block that handles a lock it cannot take, so every later build then dies with a
+      // NumberFormatException.  Wait out the race before assuming that this is the latter case.
+      if (System.currentTimeMillis() - lockFile.lastModified() > EMPTY_LOCK_FILE_GRACE_MILLIS
+          && lockFile.delete()) {
+        logger.lifecycle("Deleted abandoned Spotless P2 lock file that holds no PID: ${lockFile}")
+      }
       return
     }
     // A PID that the operating system has recycled looks like the original owner, which leaves the
@@ -231,6 +244,10 @@ spotless {
     greclipseConfig.cacheDirectory(spotlessP2CacheDir)
     greclipseConfig.withP2Mirrors([
       "https://download.eclipse.org/": "https://mirror.umd.edu/eclipse/",
+      // Not a no-op:  as soon as the mirror map is non-empty, Spotless rewrites every P2 repository
+      // URL through it and throws IllegalStateException for a URL that matches no prefix, rather
+      // than leaving that URL alone.  This identity entry is what lets the Groovy repository keep
+      // its own address.
       "https://groovy.jfrog.io/": "https://groovy.jfrog.io/",
     ])
 
