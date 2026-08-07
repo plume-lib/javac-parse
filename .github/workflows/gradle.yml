@@ -25,7 +25,31 @@ jobs:
           cache: 'gradle'
       - name: java -version
         run: java -version
-      - name: Warm up Gradle cache
-        run: ./gradlew spotlessCheck > /dev/null 2>&1 || (sleep 60 && true)
+      # To format .gradle files, Spotless provisions the Groovy-Eclipse formatter from P2
+      # repositories:  about 140 MB of downloads from download.eclipse.org (via the mirror that
+      # build.gradle names) and from groovy.jfrog.io.  Those downloads fail often enough --
+      # roughly one job in four -- that they need both a cache and a retry.  When this cache
+      # hits, provisioning needs no network access at all.  The directory is the one that
+      # build.gradle passes to "greclipseConfig.cacheDirectory".
+      - name: Cache the Groovy-Eclipse formatter
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/spotless-p2
+          key: spotless-p2-${{ hashFiles('gradle/libs.versions.toml', 'build.gradle') }}
+          restore-keys: spotless-p2-
+      # Provision the formatter in a step of its own, so that a failed download is retried
+      # rather than failing the build.  The "spotlessGroovyGradle" task provisions and runs the
+      # formatter but does not write to the .gradle files, nor does it report violations; the
+      # "build" step below does that.
+      - name: Provision the Groovy-Eclipse formatter
+        run: |
+          for attempt in 1 2 3; do
+            if ./gradlew spotlessGroovyGradle; then
+              exit 0
+            fi
+            echo "Provisioning attempt ${attempt} failed; retrying in 30 seconds."
+            sleep 30
+          done
+          exit 1
       - name: ./gradlew build
         run: ./gradlew build
