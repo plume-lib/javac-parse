@@ -167,8 +167,7 @@ def spotlessP2CacheDir = new File(gradle.gradleUserHomeDir, "spotless-p2")
 // continuous integration job that times out -- leaves the lock file behind.  Solstice never checks
 // whether the process that the lock file names still exists, so every later build waits for the
 // timeout and then fails with "Failed to provision P2 dependencies"; deleting the lock file by
-// hand is the only recovery.  A lock file can even reach a fresh machine, since the cache that
-// .github/workflows/gradle.yml saves includes whatever the job left in this directory.
+// hand is the only recovery.
 //
 // This is a static method of a class rather than a method of the build script, because the
 // configuration cache nulls out a closure's owner when it serializes the closure.
@@ -183,21 +182,28 @@ class SpotlessP2 {
     if (!lockFile.isFile()) {
       return
     }
-    long pid
+    long lastModified = lockFile.lastModified()
+    String contents
     try {
-      pid = Long.parseLong(lockFile.getText("UTF-8").trim())
-    } catch (NumberFormatException e) {
+      contents = lockFile.getText("UTF-8").trim()
+    } catch (IOException e) {
+      // The lock file was deleted between the test above and this read, which is what happens when
+      // the process that held it releases it.  Nothing is stale.
+      return
+    }
+    if (!contents.isLong()) {
       // Solstice creates the lock file and then writes its PID into it, so a lock file that holds
       // no PID usually belongs to a live process that is between those two steps.  A process that
       // is killed between them leaves the file empty forever, and Solstice parses the file outside
       // the "try" block that handles a lock it cannot take, so every later build then dies with a
       // NumberFormatException.  Wait out the race before assuming that this is the latter case.
-      if (System.currentTimeMillis() - lockFile.lastModified() > EMPTY_LOCK_FILE_GRACE_MILLIS
-          && lockFile.delete()) {
+      if (System.currentTimeMillis() - lastModified > EMPTY_LOCK_FILE_GRACE_MILLIS
+          && deleteIfUnchanged(lockFile, contents, lastModified, logger)) {
         logger.lifecycle("Deleted abandoned Spotless P2 lock file that holds no PID: ${lockFile}")
       }
       return
     }
+    long pid = contents.toLong()
     // A PID that the operating system has recycled looks like the original owner, which leaves the
     // lock file in place.  That is the behavior that this method is avoiding, but erring in this
     // direction merely fails to improve on Solstice, whereas deleting a live process's lock file
@@ -205,9 +211,45 @@ class SpotlessP2 {
     if (ProcessHandle.of(pid).isPresent()) {
       return
     }
-    if (lockFile.delete()) {
+    if (deleteIfUnchanged(lockFile, contents, lastModified, logger)) {
       logger.lifecycle("Deleted stale Spotless P2 lock file of dead process ${pid}: ${lockFile}")
     }
+  }
+
+  // Deletes the lock file, but only if it is still the very file that the caller judged to be
+  // stale.  Two builds can reach this point at once, because prek.toml runs the formatter from a
+  // hook, which can run while a build is running.  Between the caller's read and this deletion, the
+  // other build can delete the same lock file, provision the cache, and become the live owner of a
+  // new lock file of the same name; deleting by name alone would then delete a live build's lock.
+  //
+  // Renaming is what makes the second look trustworthy.  A rename is atomic, so of two builds that
+  // both judge the lock file stale, only one claims it; and once claimed, no process can reach the
+  // file through the ".lock" name, so what it holds cannot change any further.  Re-reading the file
+  // in place would say nothing, because it could change again immediately afterward.
+  //
+  // Returns true if the lock file was deleted.
+  private static boolean deleteIfUnchanged(
+      File lockFile, String expectedContents, long expectedLastModified, Logger logger) {
+    File claimed = new File(lockFile.getParentFile(),
+        lockFile.getName() + ".stale-" + ProcessHandle.current().pid())
+    if (!lockFile.renameTo(claimed)) {
+      return false
+    }
+    String contents
+    try {
+      contents = claimed.getText("UTF-8").trim()
+    } catch (IOException e) {
+      contents = null
+    }
+    if (contents == expectedContents && claimed.lastModified() == expectedLastModified) {
+      return claimed.delete()
+    }
+    // Another build took the lock after the caller read it, so the claimed file is that build's,
+    // not the abandoned one.  Put it back.
+    if (!claimed.renameTo(lockFile)) {
+      logger.warn("Cannot restore the Spotless P2 lock file ${lockFile} from ${claimed}")
+    }
+    return false
   }
 }
 

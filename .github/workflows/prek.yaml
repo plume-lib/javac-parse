@@ -21,8 +21,7 @@ jobs:
       # partial entry.  That is deliberate:  it avoids repeating that job's version-derived key
       # here, where it would be a second copy to keep in step.  An entry for another formatter
       # version costs nothing, because Solstice downloads whatever the restored directory lacks, and
-      # a partial entry can carry a stale lock file, which build.gradle's
-      # "deleteStaleSpotlessP2Lock" task deletes.
+      # no entry carries a lock file, because that job deletes the lock file before saving.
       - name: Restore Spotless P2 cache
         uses: actions/cache/restore@v6
         with:
