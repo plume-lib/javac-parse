@@ -15,6 +15,10 @@ import org.junit.jupiter.api.function.Executable;
 import org.plumelib.util.SystemP;
 
 class JavacParseTest {
+
+  /** Creates a JavacParseTest. */
+  JavacParseTest() {}
+
   @Test
   void javacParseTest() {
     assertThrows(IOException.class, () -> JavacParse.parseFile("foo bar"));
@@ -249,6 +253,7 @@ class JavacParseTest {
    * @param thunk a thunk that parses Java code
    * @param s the parsed code, for diagnostics
    */
+  @SuppressWarnings("PMD.ExceptionAsFlowControl")
   void assertIllegalArgument(Executable thunk, String s) {
     try {
       thunk.execute();

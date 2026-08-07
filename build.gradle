@@ -99,7 +99,9 @@ tasks.withType(JavaCompile).configureEach {
 // Compilation always uses Java 17, but the tests run under various Java versions.  The
 // `java.toolchain` setting above applies to Test tasks as well as to compilation, so without this
 // the tests would always run under Java 17.  By default the tests run under the JVM that Gradle
-// itself is running under, which is what the job matrix in .github/workflows/gradle.yml varies.
+// itself is running under.  The job matrix in .github/workflows/gradle.yml does not rely on that
+// default:  it runs Gradle under Java 21 in every job and selects the test JVM by passing
+// `-PtestJavaVersion`.
 // Override with, for example:
 //   ./gradlew test -PtestJavaVersion=17
 def testJavaVersionProperty = project.findProperty("testJavaVersion")
@@ -216,9 +218,6 @@ pmd {
   ruleSets = [] // Prevent the default errorprone.xml from being applied.
   ruleSetFiles = files("${rootDir}/.pmd-ruleset.xml")
   consoleOutput = true
-}
-pmdTest {
-  exclude("**/src/test/resources/**")
 }
 
 
