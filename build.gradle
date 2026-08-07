@@ -246,9 +246,22 @@ class SpotlessP2 {
     }
     // Another build took the lock after the caller read it, so the claimed file is that build's,
     // not the abandoned one.  Put it back.
-    if (!claimed.renameTo(lockFile)) {
-      logger.warn("Cannot restore the Spotless P2 lock file ${lockFile} from ${claimed}")
+    //
+    // Linking rather than renaming, because a rename replaces whatever the ".lock" name refers to
+    // by then, and that can be a *third* build's live lock:  a build that started after the claim
+    // above saw no lock file and made its own.  Overwriting that build's lock file with contents
+    // that name some other process is exactly the mistake that this class avoids elsewhere, and it
+    // would let two builds provision the cache at once.  Creating a link fails instead of replacing.
+    try {
+      java.nio.file.Files.createLink(lockFile.toPath(), claimed.toPath())
+    } catch (java.nio.file.FileAlreadyExistsException e) {
+      // A third build owns the lock file now, and its lock is as good as the restored one would
+      // have been.  Fall through to delete the claimed file, which no name reaches any longer.
+    } catch (IOException e) {
+      logger.warn("Cannot restore the Spotless P2 lock file ${lockFile} from ${claimed}: ${e}")
+      return false
     }
+    claimed.delete()
     return false
   }
 }
@@ -391,26 +404,21 @@ class JavadocFonts {
   }
 }
 
+// Every option here is a standard doclet option, so a Javadoc task that used a custom doclet would
+// have to opt out of this block.  No such task exists, and one that documented this project's
+// sources would want the same strictness anyway.
 tasks.withType(Javadoc).configureEach {
   options.noTimestamp = true
   options.quiet()
   options {
     addMultilineStringsOption("-add-exports").setValue(javacExportTargets)
+    // Turn Javadoc warnings into errors.
+    addBooleanOption("Xdoclint:all", true)
+    addBooleanOption("Xwerror", true)
   }
   doLast {
     JavadocFonts.removeDejaVuFontImport(it.destinationDir)
   }
-}
-
-// Turns Javadoc warnings into errors.  This is applied to individual tasks rather than to every
-// Javadoc task, because a task that uses a custom doclet rejects the standard doclet's options.
-def strictJavadoc = { Javadoc javadocTask ->
-  javadocTask.options.addBooleanOption("Xdoclint:all", true)
-  javadocTask.options.addBooleanOption("Xwerror", true)
-}
-
-tasks.named("javadoc", Javadoc) {
-  strictJavadoc(it)
 }
 
 // The `javadoc` task documents only the public API.
@@ -421,7 +429,6 @@ def javadocPrivate = tasks.register("javadocPrivate", Javadoc) {
   classpath = sourceSets.main.output + sourceSets.main.compileClasspath
   destinationDir = layout.buildDirectory.dir("docs/javadocPrivate").get().asFile
   options.addBooleanOption("private", true)
-  strictJavadoc(it)
 }
 tasks.named("check") {
   dependsOn("javadoc", javadocPrivate)
@@ -432,7 +439,6 @@ def javadocWebUpload = tasks.register("javadocWebUpload", Javadoc) {
   source = sourceSets.main.allJava
   classpath = sourceSets.main.output + sourceSets.main.compileClasspath
   destinationDir = file("/cse/web/research/plumelib/${project.name}/api")
-  strictJavadoc(it)
 }
 // Set permissions
 def javadocWebChgrp = tasks.register("javadocWebChgrp", Exec) {

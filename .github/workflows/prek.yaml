@@ -16,16 +16,30 @@ jobs:
       # downloading from the Eclipse P2 repositories, which fails often.  This job never saves the
       # cache, because most runs of this job do not populate it.
       #
-      # The key is a bare prefix that matches no entry exactly, so the restore always falls through
-      # to "restore-keys" and accepts whatever the "spotless" job saved most recently, including a
-      # partial entry.  That is deliberate:  it avoids repeating that job's version-derived key
-      # here, where it would be a second copy to keep in step.  An entry for another formatter
-      # version costs nothing, because Solstice downloads whatever the restored directory lacks, and
-      # no entry carries a lock file, because that job deletes the lock file before saving.
+      # The key computation repeats the one in the "spotless" job of gradle.yml, and must be kept in
+      # step with it.  A bare prefix that reaches the complete entry only through "restore-keys"
+      # would be shorter, but GitHub resolves a prefix to the *most recently created* matching
+      # entry, and that job writes a "...-partial-<run_id>-<run_attempt>" entry on every failed
+      # download.  The first such failure after a green run would therefore shadow the complete
+      # entry from then on, and this job would re-download the missing bundles forever.
+      - name: Compute the Spotless P2 cache key
+        id: spotless-p2-key
+        run: |
+          set -eu
+          greclipse="$(sed -n 's/^greclipse *= *"\([^"]*\)".*/\1/p' gradle/libs.versions.toml)"
+          spotless="$(sed -n 's/^com-diffplug-spotless *=.*version *= *"\([^"]*\)".*/\1/p' gradle/libs.versions.toml)"
+          if [ -z "$greclipse" ] || [ -z "$spotless" ]; then
+            echo "Cannot read the Groovy-Eclipse and Spotless versions from gradle/libs.versions.toml" >&2
+            exit 1
+          fi
+          echo "key=spotless-p2-${{ runner.os }}-greclipse-$greclipse-spotless-$spotless" >> "$GITHUB_OUTPUT"
+      # Falling back to a partial entry is worthwhile, because Solstice downloads only whatever the
+      # restored directory lacks.  No entry carries a lock file, because the "spotless" job deletes
+      # the lock file before saving.
       - name: Restore Spotless P2 cache
         uses: actions/cache/restore@v6
         with:
           path: ~/.gradle/spotless-p2
-          key: spotless-p2-${{ runner.os }}-
-          restore-keys: spotless-p2-${{ runner.os }}-
+          key: ${{ steps.spotless-p2-key.outputs.key }}
+          restore-keys: ${{ steps.spotless-p2-key.outputs.key }}-partial-
       - uses: j178/prek-action@v3.0.0

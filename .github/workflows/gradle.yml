@@ -30,6 +30,9 @@ jobs:
       # is upgraded, which would make the cache go cold far more often than the formatter actually
       # changes; the usual remedy for that, "restore-keys", makes the cache grow without bound,
       # because each save then writes back every formatter version that an earlier run downloaded.
+      #
+      # .github/workflows/prek.yaml repeats this computation in order to restore what this job
+      # saves, so the two must be kept in step.
       - name: Compute the Spotless P2 cache key
         id: spotless-p2-key
         run: |
