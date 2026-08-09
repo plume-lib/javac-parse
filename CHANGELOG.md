@@ -1,5 +1,9 @@
 # javac-parse change log
 
+## 9.9.9 (2026-08-??)
+
+- Requires Java 21 to run.
+
 ## 1.0.0 (2026-08-05)
 
 - Requires Java 17 to run.
