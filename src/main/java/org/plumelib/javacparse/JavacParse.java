@@ -153,7 +153,6 @@ public final class JavacParse {
    * @return the parsed method
    * @throws IllegalArgumentException if the method source does not parse
    */
-  @SuppressWarnings("PMD.AvoidThrowingNewInstanceOfSameException") // bug in PMD
   public static MethodTree parseMethod(String methodSource) {
     Tree member;
     try {
@@ -174,7 +173,6 @@ public final class JavacParse {
    * @return the parsed expression
    * @throws IllegalArgumentException if the expression source does not parse
    */
-  @SuppressWarnings("PMD.AvoidThrowingNewInstanceOfSameException") // bug in PMD
   public static ExpressionTree parseExpression(String expressionSource) {
     String dummySource = "Object expression = " + expressionSource + ";";
 
@@ -198,7 +196,6 @@ public final class JavacParse {
    * @return the parsed type use
    * @throws IllegalArgumentException if the type source does not parse
    */
-  @SuppressWarnings("PMD.AvoidThrowingNewInstanceOfSameException") // bug in PMD
   public static Tree parseTypeUse(String typeSource) {
     String dummySource = typeSource + " fieldName;";
 
