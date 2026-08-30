@@ -52,8 +52,9 @@ dependencies {
 // and JVM invocation therefore needs these packages exported.  Exporting all six packages in an
 // invocation that needs only some of them is harmless.
 val javacInternalPackages = listOf("api", "code", "file", "parser", "tree", "util")
-val javacExportTargets =
-  javacInternalPackages.map { "jdk.compiler/com.sun.tools.javac.$it=ALL-UNNAMED" }
+val javacExportTargets = javacInternalPackages.map {
+  "jdk.compiler/com.sun.tools.javac.$it=ALL-UNNAMED"
+}
 val addExportsArgs = javacExportTargets.map { "--add-exports=$it" }
 val addOpensArgs = javacExportTargets.map { "--add-opens=$it" }
 
