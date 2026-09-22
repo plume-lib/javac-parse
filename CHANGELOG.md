@@ -1,14 +1,26 @@
 # javac-parse change log
 
-## 1.0.0 (????-??-??)
+## 9.9.9 (2026-08-??)
+
+- Tested under Java 27.
+- Requires Java 21 to run.
+
+## 1.0.0 (2026-08-05)
 
 - Requires Java 17 to run.
 - `JavacParseResult` is now a record.
+- New method `parseMethod()`.
+- Simplified the type of most `parse*()` methods, which now return a tree
+  or throw an exception.
+- `parseTypeUse(String)` no longer silently parses only a prefix of its argument;
+  a string that is not entirely a type use now throws `IllegalArgumentException`.
+- Deprecated `parseTypeUse(JavaFileObject)`, which may parse only a prefix of its
+  argument.
 
 ## 0.9.0 (2025-12-10)
 
 - `JavacParse`:
-  - Renamed `parseJavaFile()` to `parseFile();`.
+  - Renamed `parseJavaFile()` to `parseFile()`.
   - Renamed `parseJavaCode()` to `parseCompilationUnit()`.
   - Renamed `parseJavaFileObject()` to `parseCompilationUnit()`.
   - New method `parseTypeDeclaration()`.

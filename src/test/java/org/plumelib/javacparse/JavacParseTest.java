@@ -6,14 +6,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.LiteralTree;
 import com.sun.source.tree.MemberSelectTree;
+import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
 import java.io.IOException;
 import java.util.StringJoiner;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
-import org.plumelib.util.SystemPlume;
+import org.plumelib.util.SystemP;
 
 class JavacParseTest {
+
+  /** Creates a JavacParseTest. */
+  JavacParseTest() {}
+
   @Test
   void javacParseTest() {
     assertThrows(IOException.class, () -> JavacParse.parseFile("foo bar"));
@@ -33,7 +38,8 @@ class JavacParseTest {
     String scu1 =
         """
         class MyClass { void m() {} }\s
-        class OtherClass { String f = "hello world"; }""";
+        class OtherClass { String f = "hello world"; }\
+        """;
     String scu2 = si1 + scu1;
     String scu3 = si2 + scu1;
     String scu4 = si1 + si2 + scu1;
@@ -128,18 +134,17 @@ class JavacParseTest {
     assertIllegalArgument(() -> JavacParse.parseTypeDeclaration(invalid7), invalid7);
 
     // Expression
-    assertNoParseError(JavacParse.parseExpression(e1), e1);
-    assertNoParseError(JavacParse.parseExpression(e2), e2);
-    assertNoParseError(JavacParse.parseExpression(e3), e3);
-    assertNoParseError(JavacParse.parseExpression(e4), e4);
-    assertNoParseError(JavacParse.parseExpression(e5), e5);
-    assertNoParseError(JavacParse.parseExpression(e6), e6);
-    assertNoParseError(JavacParse.parseExpression(e7), e7);
-    assertNoParseError(JavacParse.parseExpression(e8), e8);
-    JavacParseResult<ExpressionTree> e7jpr = JavacParse.parseExpression(e7);
-    assertTrue(e7jpr.tree() instanceof MemberSelectTree);
-    JavacParseResult<ExpressionTree> e8jpr = JavacParse.parseExpression(e8);
-    assertTrue(e8jpr.tree() instanceof LiteralTree);
+    // These calls throw an exception if there is a parse error.
+    JavacParse.parseExpression(e1);
+    JavacParse.parseExpression(e2);
+    JavacParse.parseExpression(e3);
+    JavacParse.parseExpression(e4);
+    JavacParse.parseExpression(e5);
+    JavacParse.parseExpression(e6);
+    ExpressionTree e7tree = JavacParse.parseExpression(e7);
+    assertTrue(e7tree instanceof MemberSelectTree);
+    ExpressionTree e8tree = JavacParse.parseExpression(e8);
+    assertTrue(e8tree instanceof LiteralTree);
 
     assertIllegalArgument(() -> JavacParse.parseExpression(scu1), scu1);
     assertIllegalArgument(() -> JavacParse.parseExpression(scu2), scu2);
@@ -162,6 +167,74 @@ class JavacParseTest {
     assertIllegalArgument(() -> JavacParse.parseExpression(invalid7), invalid7);
   }
 
+  @Test
+  void parseTypeUseTest() {
+    // Valid type uses parse without error.
+    String[] validTypeUses = {
+      "int",
+      "String",
+      "java.lang.String",
+      "List<String>",
+      "List<? extends Number>",
+      "int[]",
+      "String[][]",
+      "@NonNegative Integer",
+      "@NonNegative @Positive Integer",
+      "List<? extends @Positive Number>",
+    };
+    for (String t : validTypeUses) {
+      JavacParse.parseTypeUse(t);
+    }
+    assertTrue(JavacParse.parseTypeUse("java.lang.String") instanceof MemberSelectTree);
+
+    // These are not (whole) type uses. In particular, a type use followed by trailing text is
+    // invalid: parseTypeUse must not silently parse only the prefix.
+    String[] invalidTypeUses = {
+      "",
+      "1 + 2",
+      "Foo bar baz",
+      "java.lang.String extra nonsense",
+      "int x; int",
+      "class MyClass {}",
+    };
+    for (String t : invalidTypeUses) {
+      assertIllegalArgument(() -> JavacParse.parseTypeUse(t), t);
+    }
+
+    String evil = "int x; } class Evil { int";
+    assertIllegalArgument(() -> JavacParse.parseTypeUse(evil), evil);
+  }
+
+  @Test
+  void parseMethodTest() {
+    // Valid methods (and annotation type elements) parse without error.
+    String[] validMethods = {
+      "void m() {}",
+      "int add(int a, int b) { return a + b; }",
+      "public static <T> T identity(T x) { return x; }",
+      "abstract void foo();",
+      "String value();",
+    };
+    for (String m : validMethods) {
+      JavacParse.parseMethod(m);
+    }
+    MethodTree mt = JavacParse.parseMethod("int add(int a, int b) { return a + b; }");
+    assertTrue(mt.getName().contentEquals("add"));
+
+    // These are not (whole, single) methods.
+    String[] invalidMethods = {
+      "", // no member at all
+      "int x = 5", // a field, not a method
+      "1 + 2", // an expression, not a method
+      "class Nested {}", // a type declaration, not a method
+      "void m() {", // unbalanced braces
+      "void a() {} void b() {}", // two methods, not one
+    };
+    for (String m : invalidMethods) {
+      assertIllegalArgument(() -> JavacParse.parseMethod(m), m);
+    }
+  }
+
   /**
    * Throws an error if the parse result has a parse error.
    *
@@ -180,6 +253,7 @@ class JavacParseTest {
    * @param thunk a thunk that parses Java code
    * @param s the parsed code, for diagnostics
    */
+  @SuppressWarnings("PMD.ExceptionAsFlowControl")
   void assertIllegalArgument(Executable thunk, String s) {
     try {
       thunk.execute();
@@ -201,7 +275,7 @@ class JavacParseTest {
 
   @Test
   void memoryTest() {
-    long initialUsedMemory = SystemPlume.usedMemory(true);
+    long initialUsedMemory = SystemP.usedMemory(true);
     int numIterations = 10; // Each iteration takes approximately 1 second.
     if (System.getenv("GITHUB_HEAD_REF") != null) {
       // If this line is reached, the program is running in GitHub Actions continuous integration.
@@ -216,12 +290,12 @@ class JavacParseTest {
         }
         JavacParse.parseCompilationUnit(sj.toString());
       }
-      String msg = SystemPlume.gcUsageMessage(.3, 10);
+      String msg = SystemP.gcUsageMessage(.3, 10);
       if (msg != null) {
         System.out.println(msg);
       }
     }
-    long finalUsedMemory = SystemPlume.usedMemory(true);
+    long finalUsedMemory = SystemP.usedMemory(true);
     double memoryRatio = (double) finalUsedMemory / (double) initialUsedMemory;
     if (memoryRatio > 1.03) {
       String msg =

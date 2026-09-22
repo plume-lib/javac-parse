@@ -15,7 +15,7 @@ A parse tree is often called an AST (abstract syntax tree).
 The `parseJavaFile()` and `parseJavaCode()` methods return an instance of class
 [`JCTree.JCCompilationUnit`](https://www.javadoc.io/static/org.kohsuke.sorcerer/sorcerer-javac/0.11/com/sun/tools/javac/tree/JCTree.JCCompilationUnit.html).
 It implements the interface
-[`CompilationUnitTree`](https://docs.oracle.com/javase/8/docs/jdk/api/javac/tree/com/sun/source/tree/CompilationUnitTree.html),
+[`CompilationUnitTree`](https://docs.oracle.com/javase/8/docs/jdk/api/javac/tree/com/sun/source/tree/CompilationUnitTree.html).
 javac-parse uses the internal javac class
 [`JCTree`](https://www.javadoc.io/static/org.kohsuke.sorcerer/sorcerer-javac/0.11/com/sun/tools/javac/tree/JCTree.html)
 and its subclasses because they provide more functionality than the interface.
@@ -29,11 +29,11 @@ In a Gradle buildfile, write
 
 ```gradle
 dependencies {
-  implementation("org.plumelib:javac-parse:0.9.0")
+  implementation("org.plumelib:javac-parse:1.0.0")
 }
 ```
 
-Other build systems are [similar](https://search.maven.org/artifact/org.plumelib/javac-parse/0.9.0/jar).
+Other build systems are [similar](https://search.maven.org/artifact/org.plumelib/javac-parse/1.0.0/jar).
 
 You will need to add something like this to your buildfile (Gradle example):
 
@@ -91,7 +91,7 @@ support Java syntax added after Java 21.
 
 (Here are the gory details about javac's handling of comments.
 In the javac implementation, every `Token` retains all comments
-(Javadoc or not) in a a public field `comments`.  All methods look through that
+(Javadoc or not) in a public field `comments`.  All methods look through that
 field and only pick out the Javadoc comments.  For example,
 `Scanner.nextToken()` populates the Scanner's `docComments` field from the
 `Token`'s `comments` field, dropping the non-Javadoc comments, which don't
