@@ -45,7 +45,7 @@ public record JavacParseResult<T extends Tree>(
 
   @Override
   @SuppressWarnings({
-    "allcheckers:purity.not.sideeffectfree.call",
+    "allcheckers:purity.call",
     "lock:method.guarantee.violated"
   }) // side effect to local StringJoiner
   public String toString(@GuardSatisfied JavacParseResult<T> this) {
