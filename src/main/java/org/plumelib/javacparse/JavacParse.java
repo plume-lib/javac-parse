@@ -31,7 +31,7 @@ public final class JavacParse {
 
   /** Do not instantiate. */
   private JavacParse() {
-    throw new Error("Do not instantiate.");
+    throw new UnsupportedOperationException("Do not instantiate.");
   }
 
   /**
@@ -158,10 +158,10 @@ public final class JavacParse {
     try {
       member = parseTypeMember(methodSource);
     } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException("Invalid method: " + methodSource);
+      throw new IllegalArgumentException("Invalid method: " + methodSource, e);
     }
     if (!(member instanceof MethodTree mt)) {
-      throw new IllegalArgumentException("Invalid method: " + methodSource);
+      throw new IllegalArgumentException("Not a method: " + methodSource);
     }
     return mt;
   }
@@ -180,13 +180,12 @@ public final class JavacParse {
     try {
       member = parseTypeMember(dummySource);
     } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException("Invalid expression: " + expressionSource);
+      throw new IllegalArgumentException("Invalid expression: " + expressionSource, e);
     }
     if (!(member instanceof VariableTree vt)) {
-      throw new IllegalArgumentException("Invalid expression: " + expressionSource);
+      throw new IllegalArgumentException("Not an expression: " + expressionSource);
     }
-    ExpressionTree expr = vt.getInitializer();
-    return expr;
+    return vt.getInitializer();
   }
 
   /**
@@ -203,13 +202,12 @@ public final class JavacParse {
     try {
       member = parseTypeMember(dummySource);
     } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException("Invalid type use: " + typeSource);
+      throw new IllegalArgumentException("Invalid type use: " + typeSource, e);
     }
     if (!(member instanceof VariableTree vt)) {
-      throw new IllegalArgumentException("Invalid type use: " + typeSource);
+      throw new IllegalArgumentException("Not a type use: " + typeSource);
     }
-    Tree type = vt.getType();
-    return type;
+    return vt.getType();
   }
 
   // ///////////////////////////////////////////////////////////////////////////

@@ -5,7 +5,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 
 /** A JavaFileObject constructed from a string. */
-class StringJavaFileObject extends SimpleJavaFileObject {
+public class StringJavaFileObject extends SimpleJavaFileObject {
 
   /** Java code for a file (= a compilation unit). */
   private final String javaCode;
