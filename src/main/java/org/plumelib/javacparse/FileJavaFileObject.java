@@ -8,7 +8,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 
 /** A JavaFileObject constructed from a file. */
-class FileJavaFileObject extends SimpleJavaFileObject {
+public class FileJavaFileObject extends SimpleJavaFileObject {
 
   /** The contents of the file. */
   private final String javaCode;
