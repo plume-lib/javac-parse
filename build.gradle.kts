@@ -62,9 +62,10 @@ val addOpensArgs = javacExportTargets.map { "--add-opens=$it" }
 
 java {
   toolchain {
-    // Always compile using Java 17.  The "test" task below overrides this for
-    // test execution, so that tests run under various Java versions.
-    languageVersion = JavaLanguageVersion.of(17)
+    // Always compile using Java 21, the lowest Java version that this project supports.  (Error
+    // Prone also requires Java 21 or later.)  The "test" task below overrides this for test
+    // execution, so that tests run under various Java versions.
+    languageVersion = JavaLanguageVersion.of(21)
   }
 }
 
@@ -84,9 +85,9 @@ tasks.withType<JavaCompile>().configureEach {
 
 // Testing
 
-// Compilation always uses Java 17, but the tests run under various Java versions.  The
+// Compilation always uses Java 21, but the tests run under various Java versions.  The
 // `java.toolchain` setting above applies to Test tasks as well as to compilation, so without this
-// the tests would always run under Java 17.  By default the tests run under the JVM that Gradle
+// the tests would always run under Java 21.  By default the tests run under the JVM that Gradle
 // itself is running under.  The job matrix in .github/workflows/gradle.yml does not rely on that
 // default:  it runs Gradle under Java 21 in every job and selects the test JVM by passing
 // `-PtestJavaVersion`.
